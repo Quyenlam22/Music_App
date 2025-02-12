@@ -7,11 +7,16 @@ env.config();
 const app: Express = express();
 const port: string | number = process.env.PORT || 3000;
 
+app.set("views", "./views");
+app.set("view engine", "pug");
+
 database.connect();
 
 app.get("/topics", (req: Request, res: Response) => {
     console.log("ok");
-    res.send("Chủ đề bài hát");
+    res.render("client/pages/topics/index", {
+        pageTitle: "Trang chủ đề bài hát"
+    });
 })
 
 app.listen(port, () => {
