@@ -1,7 +1,8 @@
-import {Request, Response} from "express";
+import { Request, Response } from "express";
 import Topic from "../../models/topic.model";
 import Song from "../../models/song.model";
 import Singer from "../../models/singer.model";
+import FavoriteSong from "../../models/favorite-song.model";
 
 //[GET] /songs/:slugTopic
 export const list = async (req: Request, res: Response) => {
@@ -27,7 +28,7 @@ export const list = async (req: Request, res: Response) => {
 
         song["infoSinger"] = infoSinger;
     }
-    
+
     res.render("client/pages/songs/list", {
         pageTitle: topic.title,
         songs: songs
@@ -49,11 +50,18 @@ export const detail = async (req: Request, res: Response) => {
         deleted: false
     }).select("fullName");
 
-     const topic = await Topic.findOne({
+    const topic = await Topic.findOne({
         _id: song.topicId,
         status: "active",
         deleted: false
     });
+
+    const favoriteSong = await FavoriteSong.findOne({
+        // userId: "",
+        songId: song.id
+    });
+
+    song["isFavoriteSong"] = favoriteSong ? true : false;
 
     res.render("client/pages/songs/detail", {
         pageTitle: "Chi tiết bài hát",
@@ -81,10 +89,44 @@ export const like = async (req: Request, res: Response) => {
     }, {
         like: newLike
     });
+    // like: ["id_user_1", "id_user_2"]
 
     res.json({
         code: 200,
-        message: "Success!", 
+        message: "Success!",
         like: newLike
+    });
+}
+
+//[PATCH] /songs/favorite/:typeFavorite/:songId
+export const favorite = async (req: Request, res: Response) => {
+    const typeFavorite: string = req.params.typeFavorite;
+    const songId: string = req.params.songId;
+
+    switch (typeFavorite) {
+        case "favorite":
+            const existFavoriteSong = await FavoriteSong.findOne({
+                songId: songId
+            })
+            if (!existFavoriteSong) {
+                const record = new FavoriteSong({
+                    // userId: "",
+                    songId: songId
+                });
+                await record.save();
+            }
+            break;
+        case "unfavorite":
+            await FavoriteSong.deleteOne({
+                    songId: songId
+                });
+            break;
+        default:
+            break;
+    }
+
+    res.json({
+        code: 200,
+        message: "Success!"
     });
 }

@@ -1,6 +1,6 @@
 //Aplayer
 const aplayer = document.querySelector('#aplayer');
-if(aplayer){
+if (aplayer) {
     const dataSong = JSON.parse(aplayer.getAttribute("data-song"));
     // dataSong = JSON.parse(dataSong)
     const dataSinger = JSON.parse(aplayer.getAttribute("data-singer"));
@@ -17,7 +17,7 @@ if(aplayer){
     });
 
     const avatar = document.querySelector(".singer-detail .inner-avatar");
-    
+
     ap.on('pause', function () {
         avatar.style.animationPlayState = "paused";
     });
@@ -29,7 +29,7 @@ if(aplayer){
 
 // Button Like
 const buttonLike = document.querySelector('[button-like');
-if(buttonLike) {
+if (buttonLike) {
     buttonLike.addEventListener("click", () => {
         const idSong = buttonLike.getAttribute("button-like");
 
@@ -43,13 +43,40 @@ if(buttonLike) {
             method: "PATCH"
         };
 
-        fetch(link, option) 
+        fetch(link, option)
             .then(res => res.json())
             .then(data => {
-                const span = buttonLike.querySelector("span");
-                span.innerHTML = `${data.like} thích`;
-                buttonLike.classList.toggle("active");
+                if (data.code == 200) {
+                    const span = buttonLike.querySelector("span");
+                    span.innerHTML = `${data.like} thích`;
+                    buttonLike.classList.toggle("active");
+                }
             })
     })
 }
 
+// Button Favorite
+const buttonFavorite = document.querySelector('[button-favorite');
+if (buttonFavorite) {
+    buttonFavorite.addEventListener("click", () => {
+        const idSong = buttonFavorite.getAttribute("button-favorite");
+
+        const isAcitve = buttonFavorite.classList.contains("active");
+
+        let typeFavorite = isAcitve ? "unfavorite" : "favorite";
+
+        const link = `/songs/favorite/${typeFavorite}/${idSong}`;
+
+        const option = {
+            method: "PATCH"
+        };
+
+        fetch(link, option)
+            .then(res => res.json())
+            .then(data => {
+                if (data.code == 200) {
+                    buttonFavorite.classList.toggle("active");
+                }
+            })
+    })
+}
