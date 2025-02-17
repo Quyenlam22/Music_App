@@ -1,0 +1,22 @@
+extends ../../layouts/default.pug
+include ../../mixins/box-head.pug
+
+block main
+    .container.my-3 
+        .row 
+            .col-12 
+                +box-head(pageTitle)
+
+        .row 
+            each favoriteSong in favoriteSongs
+                .col-6.mb-3  
+                    .song-item
+                        .inner-image 
+                            a(href=`/songs/detail/${favoriteSong.infoSong.slug}`)
+                                img(src=favoriteSong.infoSong.avatar, alt=favoriteSong.infoSong.title)
+                        .inner-content 
+                            .inner-title
+                                a(href=`/songs/detail/${favoriteSong.infoSong.slug}`) #{favoriteSong.infoSong.title}
+                            .inner-singer <i class="fa-solid fa-microphone-lines"></i> #{favoriteSong.infoSinger.fullName} 
+                            div(class="inner-heart active" button-favorite=favoriteSong.songId) <i class="fa-regular fa-heart"></i> Yêu thích
+                            .inner-time <i class="fa-solid fa-clock"></i> Hôm nay
