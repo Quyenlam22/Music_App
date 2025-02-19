@@ -61,17 +61,17 @@ if (buttonFavorites.length > 0) {
     buttonFavorites.forEach((buttonFavorite) => {
         buttonFavorite.addEventListener("click", () => {
             const idSong = buttonFavorite.getAttribute("button-favorite");
-    
+
             const isAcitve = buttonFavorite.classList.contains("active");
-    
+
             let typeFavorite = isAcitve ? "unfavorite" : "favorite";
-    
+
             const link = `/songs/favorite/${typeFavorite}/${idSong}`;
-    
+
             const option = {
                 method: "PATCH"
             };
-    
+
             fetch(link, option)
                 .then(res => res.json())
                 .then(data => {
@@ -80,5 +80,49 @@ if (buttonFavorites.length > 0) {
                     }
                 })
         })
+    })
+}
+
+// Search Suggest
+const boxSearch = document.querySelector(".box-search");
+if (boxSearch) {
+    const input = boxSearch.querySelector("input[name='keyword']");
+    const boxSuggest = boxSearch.querySelector(".inner-suggest");
+
+    input.addEventListener("keyup", () => {
+        const keyword = input.value;
+
+        const link = `/search/suggest/?keyword=${keyword}`;
+
+        fetch(link)
+            .then(res => res.json())
+            .then(data => {
+                if (data.code == 200) {
+                    const songs = data.songs;
+                    if (songs.length > 0) {
+                        boxSuggest.classList.add("show");
+                        const htmls = songs.map(song => {
+                            return `
+                                <a class="inner-item" href="/songs/detail/${song.slug}">
+                                    <div class="inner-image">
+                                        <img src="${song.avatar}">
+                                    </div>
+                                    <div class="inner-info">
+                                        <div class="inner-title">${song.title}</div>
+                                        <div class="inner-singer">
+                                        <i class="fa-solid fa-microphone-lines"></i> ${song.infoSinger.fullName}
+                                        </div>
+                                    </div>
+                                </a>
+                            `;
+                        })
+
+                        const boxList = boxSearch.querySelector(".inner-list")
+                        boxList.innerHTML = htmls.join("");
+                    } else {
+                        boxSuggest.classList.remove("show");
+                    }
+                }
+            })
     })
 }

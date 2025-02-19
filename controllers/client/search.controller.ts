@@ -1,25 +1,26 @@
-import {Request, Response} from "express";
+import { Request, Response } from "express";
 import Singer from "../../models/singer.model";
 import Song from "../../models/song.model";
 
 import { converToSlug } from "../../helpers/convertToSlug.helper";
 
-//[GET] /search/result
+//[GET] /search/:type
 export const result = async (req: Request, res: Response) => {
+    const type = req.params.type;
     const keyword: string = `${req.query.keyword}`;
 
     let newSongs = [];
 
-    if(keyword) {
+    if (keyword) {
         const keywordRegex = new RegExp(keyword, "i");
-        
+
         const stringSlug = converToSlug(keyword);
         const stringSlugRegex = new RegExp(stringSlug, "i");
-        
+
         const songs = await Song.find({
             $or: [
-                {title: keywordRegex},
-                {slug: stringSlugRegex},
+                { title: keywordRegex },
+                { slug: stringSlugRegex },
             ]
         })
 
@@ -28,14 +29,41 @@ export const result = async (req: Request, res: Response) => {
                 _id: item.singerId
             });
 
-            item["infoSinger"] = infoSinger
+            // item["infoSinger"] = infoSinger
+            newSongs.push({
+                id: item.id,
+                title: item.title,
+                avatar: item.avatar,
+                like: item.like,
+                slug: item.slug,
+                infoSinger: {
+                    fullName: infoSinger.fullName
+                }
+            });
         }
-        newSongs = songs;
+        // newSongs = songs;
     }
 
-    res.render("client/pages/search/result", {
-        pageTitle: "Kết quả tìm kiếm",
-        keyword: keyword,
-        songs: newSongs
-    });
+    switch (type) {
+        case "result":
+            res.render("client/pages/search/result", {
+                pageTitle: "Kết quả tìm kiếm",
+                keyword: keyword,
+                songs: newSongs
+            });
+            break;
+        case "suggest":
+            res.json({
+                code: 200,
+                message: "Success",
+                songs: newSongs
+            });
+            break;
+        default:
+            res.json({
+                code: 400,
+                message: "Error",
+            });
+            break;
+    }
 }
