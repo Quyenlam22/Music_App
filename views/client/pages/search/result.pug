@@ -1,0 +1,26 @@
+extends ../../layouts/default.pug
+include ../../mixins/box-head.pug
+
+block main
+    .container.my-3 
+        .row 
+            .col-12 
+                +box-head(pageTitle)
+
+        if(songs.length > 0) 
+            .row 
+                each song in songs
+                    .col-6.mb-3  
+                        .song-item
+                            .inner-image 
+                                a(href=`/songs/detail/${song.slug}`)
+                                    img(src=song.avatar, alt=song.title)
+                            .inner-content 
+                                .inner-title
+                                    a(href=`/songs/detail/${song.slug}`) #{song.title}
+                                .inner-singer <i class="fa-solid fa-microphone-lines"></i> #{song.infoSinger.fullName} 
+                                .inner-like <i class="fa-solid fa-thumbs-up"></i> #{song.like}
+                                .inner-time <i class="fa-solid fa-clock"></i> Hôm nay
+
+        else 
+            h3.text-center Không tìm thấy kết quả
