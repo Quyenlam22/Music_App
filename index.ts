@@ -3,6 +3,8 @@ import * as database from "./config/database";
 import env from "dotenv";
 
 import clientRoutes from "./routes/client/index.route";
+import adminRoutes from "./routes/admin/index.route";
+import { systemConfig } from "./config/config";
 
 env.config();
 
@@ -14,9 +16,13 @@ app.use(express.static("public"));
 app.set("views", "./views");
 app.set("view engine", "pug");
 
+// Local variables
+app.locals.prefixAdmin = systemConfig.prefixAdmin;
+
 database.connect();
 
 clientRoutes(app);
+adminRoutes(app);
 
 app.listen(port, () => {
     console.log(`App listening on port ${port}`);
