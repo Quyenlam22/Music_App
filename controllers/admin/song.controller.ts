@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import Topic from "../../models/topic.model";
 import Song from "../../models/song.model";
 import Singer from "../../models/singer.model";
+import { systemConfig } from "../../config/config";
 
 //[GET] /admin/songs/
 export const index = async (req: Request, res: Response) => {
@@ -20,9 +21,44 @@ export const index = async (req: Request, res: Response) => {
         song["infoSinger"] = infoSinger;
         song["infoTopic"] = infoTopic;
     }
-    
+
     res.render("admin/pages/songs/index", {
         pageTitle: "Quản lý bài hát",
         songs: songs
     });
+}
+
+//[GET] /admin/songs/create
+export const create = async (req: Request, res: Response) => {
+    const singers = await Singer.find({
+        status: "active",
+        deleted: false
+    }).select("fullName");
+    const topics = await Topic.find({
+        status: "active",
+        deleted: false
+    }).select("title");
+
+    res.render("admin/pages/songs/create", {
+        pageTitle: "Thêm mới bài hát",
+        singers: singers,
+        topics: topics
+    });
+}
+
+//[POST] /admin/songs/create
+export const createPost = async (req: Request, res: Response) => {
+    const dataSong = {
+        title: req.body.title,
+        topicId: req.body.topicId,
+        singerId: req.body.singerId,
+        description: req.body.description || "",
+        status: req.body.status,
+        avatar: req.body.avatar
+    }
+
+    const song = new Song(dataSong);
+    song.save();
+
+    res.redirect(`${systemConfig.prefixAdmin}/songs`)
 }

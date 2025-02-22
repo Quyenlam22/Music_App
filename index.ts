@@ -23,6 +23,9 @@ app.locals.prefixAdmin = systemConfig.prefixAdmin;
 // TinyMCE
 app.use('/tinymce', express.static(path.join(__dirname, 'node_modules', 'tinymce')))
 
+//Body-parse
+app.use(express.json());
+app.use(express.urlencoded({extended: true}));
 
 database.connect();
 
