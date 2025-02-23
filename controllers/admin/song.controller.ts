@@ -64,6 +64,7 @@ export const createPost = async (req: Request, res: Response) => {
         singerId: req.body.singerId,
         description: req.body.description || "",
         status: req.body.status,
+        lyrics: req.body.lyrics,
         avatar: avatar,
         audio: audio
     }
@@ -103,24 +104,21 @@ export const edit = async (req: Request, res: Response) => {
 
 //[PATCH] /admin/songs/edit/:idSong
 export const editPatch = async (req: Request, res: Response) => {
-    let avatar = "";
-    if(req.body.avatar) {
-        avatar = req.body.avatar[0];
-    }
-
-    let audio = "";
-    if(req.body.audio) {
-        audio = req.body.audio[0];
-    }
-    
     const dataSong = {
         title: req.body.title,
         topicId: req.body.topicId,
         singerId: req.body.singerId,
         description: req.body.description || "",
         status: req.body.status,
-        avatar: avatar,
-        audio: audio
+        lyrics: req.body.lyrics
+    }
+
+    if(req.body.avatar) {
+        dataSong["avatar"] = req.body.avatar[0];
+    }
+
+    if(req.body.audio) {
+        dataSong["audio"] = req.body.audio[0];
     }
 
     await Song.updateOne({

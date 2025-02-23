@@ -75,11 +75,20 @@ block main
         div(class="form-group")
             label(for="description") Mô tả
             textarea(
-                type="number"
+                type="text"
                 class="form-control textarea-mce"
                 id="description"
                 name="description"
                 rows="5"
+            )
+        div(class="form-group")
+            label(for="lyrics") Lời bài hát
+            textarea(
+                type="text"
+                class="form-control"
+                id="lyrics"
+                name="lyrics"
+                rows="20"
             )
         div(class="form-group form-check form-check-inline")
             input(

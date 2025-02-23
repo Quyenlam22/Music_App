@@ -7,11 +7,13 @@ if (aplayer) {
     // dataSinger = JSON.parse(dataSinger)
     const ap = new APlayer({
         container: aplayer,
+        lrcType: 1,
         audio: [{
             name: dataSong.title,
             artist: dataSinger.fullName,
             url: dataSong.audio,
-            cover: dataSong.avatar
+            cover: dataSong.avatar,
+            lrc: dataSong.lyrics
         }],
         autoplay: true
     });
@@ -29,18 +31,18 @@ if (aplayer) {
     ap.on('ended', function () {
         const link = `/songs/listen/${dataSong._id}`;
 
-            const option = {
-                method: "PATCH"
-            };
+        const option = {
+            method: "PATCH"
+        };
 
-            fetch(link, option)
-                .then(res => res.json())
-                .then(data => {
-                    if (data.code == 200) {
-                        const listenSpan = document.querySelector(".singer-detail .inner-listen span");
-                        listenSpan.innerHTML = `${data.listen} lượt nghe`;
-                    }
-                })
+        fetch(link, option)
+            .then(res => res.json())
+            .then(data => {
+                if (data.code == 200) {
+                    const listenSpan = document.querySelector(".singer-detail .inner-listen span");
+                    listenSpan.innerHTML = `${data.listen} lượt nghe`;
+                }
+            })
     });
 }
 

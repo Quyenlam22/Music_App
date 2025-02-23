@@ -28,9 +28,10 @@ block main
             )
                 option(value="" disabled) -- Chọn chủ đề --
                 each topic in topics 
-                    if(song.topicId == topic.id)
-                        option(value=topic.id selected) #{topic.title} 
-                    option(value=topic.id) #{topic.title}   
+                    option(
+                        value=topic.id 
+                        selected=(song.topicId == topic.id ? true : false)
+                    ) #{topic.title} 
         div(class="form-group")
             label(for="singerId") Ca sĩ
             select(
@@ -41,9 +42,10 @@ block main
             )
                 option(value="" disabled selected) -- Chọn ca sĩ --
                 each singer in singers 
-                    if(song.singerId == singer.id)
-                        option(value=singer.id selected) #{singer.fullName} 
-                    option(value=singer.id) #{singer.fullName}   
+                    option(
+                        value=singer.id 
+                        selected=(song.singerId == singer.id ? true : false)
+                    ) #{singer.fullName} 
         div(
             class="form-group"
             upload-image
@@ -86,6 +88,15 @@ block main
                 name="description"
                 rows="5"
             ) #{song.description}
+        div(class="form-group")
+            label(for="lyrics") Lời bài hát
+            textarea(
+                type="text"
+                class="form-control"
+                id="lyrics"
+                name="lyrics"
+                rows="20"
+            ) !{song.lyrics}
         div(class="form-group form-check form-check-inline")
             input(
                 type="radio"

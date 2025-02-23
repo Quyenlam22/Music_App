@@ -47,7 +47,6 @@ export const uploadSingle = async (req: Request, res: Response, next: NextFuncti
 }
 
 export const uploadFields = async (req: Request, res: Response, next: NextFunction) => {
-    console.log(req["files"])
     for (const key in req["files"]) {
         req.body[key] = [];
         const array = req["files"][key];

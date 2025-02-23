@@ -257,6 +257,7 @@ body {
 
 .singer-detail .inner-desc .inner-text {
     font-size: 14px;
+    white-space: pre;
     padding: 10px 15px;
 }
 
