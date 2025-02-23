@@ -1,7 +1,7 @@
 import express, {Express} from "express";
 import * as database from "./config/database";
 import env from "dotenv";
-
+import methodOverride from 'method-override';
 import clientRoutes from "./routes/client/index.route";
 import adminRoutes from "./routes/admin/index.route";
 import { systemConfig } from "./config/config";
@@ -26,6 +26,8 @@ app.use('/tinymce', express.static(path.join(__dirname, 'node_modules', 'tinymce
 //Body-parse
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
+
+app.use(methodOverride('_method'))
 
 database.connect();
 
