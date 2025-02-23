@@ -1,4 +1,4 @@
-import {Router} from "express";
+import { Router } from "express";
 import multer from "multer";
 const router: Router = Router();
 
@@ -11,6 +11,14 @@ router.get("/", controller.index);
 
 router.get("/create", controller.create);
 
-router.post("/create", upload.single("avatar"), uploadCloud.uploadSingle, controller.createPost);
+router.post(
+    "/create", 
+    upload.fields([
+        { name: 'avatar', maxCount: 1 },
+        { name: 'audio', maxCount: 1 },
+        ]), 
+    uploadCloud.uploadFields, 
+    controller.createPost
+);
 
 export const songRoutes: Router = router;
