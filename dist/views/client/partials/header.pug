@@ -1,0 +1,55 @@
+header.header 
+    .container 
+        .row.align-items-center 
+            .col-3
+                .inner-logo 
+                    a(href="/")
+                        img(src="/images/Logo.jpg", alt="Logo")
+
+            .col-5
+                .box-search
+                    form(
+                        action="/search/result"
+                        method="GET"
+                    ) 
+                        .form-group.d-flex.mb-0
+                            input(
+                                type="text"
+                                placeholder="Nhập từ khóa..."
+                                class="form-control"
+                                name="keyword"
+                                value=keyword
+                            )
+                            button(
+                                type="submit"
+                                class="btn btn-primary"
+                            ) Tìm
+                    .inner-suggest
+                        .inner-list 
+                            a(href=`/songs/detail/:slugSong` class="inner-item")
+                                .inner-image 
+                                    img(src="")
+                                .inner-info 
+                                    .inner-title Title
+                                    .inner-singer 
+                                        <i class="fa-solid fa-microphone-lines"></i>
+
+            .col-4
+                .inner-menu 
+                    ul 
+                        li 
+                            a(
+                                href="/"
+                                class="toolbar"    
+                            ) <i class="fa-solid fa-house"></i> Trang chủ 
+                        li 
+                            a(
+                                href="/topics"
+                                class="toolbar"    
+                            ) <i class="fa-solid fa-music"></i> Chủ đề
+                        li 
+                            a(
+                                href="/favorite/songs"
+                                class="toolbar"    
+                            ) <i class="fa-solid fa-heart"></i> Yêu thích
+            
