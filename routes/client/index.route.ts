@@ -3,6 +3,7 @@ import { topicRoutes } from "./topic.route";
 import { songRoutes } from "./song.route";
 import { favoriteRoutes } from "./favorite-song.route";
 import { searchRoutes } from "./search.route";
+import { homeRoutes } from "./home.route";
 
 
 const clientRoutes = (app: Express): void => {
@@ -10,6 +11,7 @@ const clientRoutes = (app: Express): void => {
     app.use(`/songs`, songRoutes);
     app.use(`/favorite`, favoriteRoutes);
     app.use(`/search`, searchRoutes);
+    app.use(`/`, homeRoutes);
 };
 
 export default clientRoutes;
