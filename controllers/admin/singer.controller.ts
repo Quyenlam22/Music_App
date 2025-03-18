@@ -12,3 +12,20 @@ export const index = async (req: Request, res: Response) => {
         singers: singers
     });
 }
+
+//[PATCH] /admin/singers/delete/:idSinger
+export const deleteSinger = async (req: Request, res: Response) => {
+    await Singer.updateOne({
+        _id: req.params.idSinger
+    }, {
+        deleted: true,
+        deletedAt: Date.now()
+    });
+    
+    // res.json({
+    //     code: 200,
+    //     message: "Deleted success!"
+    // });
+
+    res.redirect("back");
+}
