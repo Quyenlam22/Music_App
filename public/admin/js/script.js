@@ -25,3 +25,48 @@ if (uploadAudio) {
         }
     })
 }
+
+//Delete button
+const deleteButtons = document.querySelectorAll("[button-deleted]");
+
+// if(deleteButtons) {
+//     deleteButtons.forEach(deleteButton => {
+//         const idSong = deleteButton.getAttribute("data-id");
+//         deleteButton.addEventListener("click", () => {
+
+//             const link = `${prefixAdmin}/songs/deleted/${idSong}`;
+//             const option = {
+//                 method: "PATCH"
+//             };
+
+//             fetch(link, option)
+//                 .then(res => res.json())
+//                 .then(data => {
+//                     console.log("ok")
+//                     if(data.code == 200) {
+//                         console.log(data.message);
+//                     }
+//                 });
+//         });
+//     })
+// }
+
+//Delete Item
+if (deleteButtons.length > 0) {
+    const formDeleted = document.querySelector("#form-deleted")
+    const path = formDeleted.getAttribute("data-path")
+
+    deleteButtons.forEach(button => {
+        button.addEventListener("click", () => {
+            const isConfirm = confirm("Bạn có chắc chắn xóa sản phẩm?")
+
+            if (isConfirm) {
+                const id = button.getAttribute("data-id")
+                const action = `${path}/${id}?_method=PATCH`
+                formDeleted.action = action
+
+                formDeleted.submit()
+            }
+        })
+    })
+}

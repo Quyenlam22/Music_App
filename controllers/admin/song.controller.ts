@@ -127,3 +127,20 @@ export const editPatch = async (req: Request, res: Response) => {
 
     res.redirect(`back`)
 }
+
+//[PATCH] /admin/songs/delete/:idSong
+export const deleteSong = async (req: Request, res: Response) => {
+    await Song.updateOne({
+        _id: req.params.idSong
+    }, {
+        deleted: true,
+        deletedAt: Date.now()
+    });
+    
+    // res.json({
+    //     code: 200,
+    //     message: "Deleted success!"
+    // });
+
+    res.redirect("back");
+}
