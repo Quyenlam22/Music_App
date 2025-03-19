@@ -6,6 +6,7 @@ import { songRoutes } from "./song.route";
 import { uploadRoutes } from "./upload.route";
 import { singerRoutes } from "./singer.route";
 import { settingRoutes } from "./setting.route";
+import { changeStatusRoutes } from "./change-status.route";
 
 const adminRoutes = (app: Express): void => {
     const PATH_ADMIN = `${systemConfig.prefixAdmin}`;
@@ -16,6 +17,7 @@ const adminRoutes = (app: Express): void => {
     app.use(`${PATH_ADMIN}/upload`, uploadRoutes);
     app.use(`${PATH_ADMIN}/singers`, singerRoutes);
     app.use(`${PATH_ADMIN}/settings`, settingRoutes);
+    app.use(`${PATH_ADMIN}/change-status`, changeStatusRoutes);
 };
 
 export default adminRoutes;
