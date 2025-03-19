@@ -71,6 +71,25 @@ if (deleteButtons.length > 0) {
     })
 }
 
+//Show alert
+const showAlert = document.querySelector("[show-alert]")
+const showMessage = () => {
+    if (showAlert) {
+        const time = parseInt(showAlert.getAttribute("data-time"))
+        const closeAlert = showAlert.querySelector("[close-alert]")
+        closeAlert.addEventListener("click", () => {
+            showAlert.classList.add("alert-hidden");
+        })
+
+        setTimeout(() => {
+            showAlert.classList.add("alert-hidden");
+        }, time)
+    }
+}
+
+
+showMessage();
+
 // Change status
 // const buttonsChangeStatus = document.querySelectorAll("[button-change-status]");
 
@@ -112,10 +131,11 @@ const buttonsChangeStatus = document.querySelectorAll("[button-change-status]");
 if (buttonsChangeStatus) {
     buttonsChangeStatus.forEach(button => {
         button.addEventListener("click", () => {
+            const type = button.getAttribute("button-change-status");
             const id = button.getAttribute("data-id");
             const currentStatus = button.getAttribute("data-status");
             const status = currentStatus === "active" ? "inactive" : "active";
-            const link = `/admin/change-status/${id}/${status}`;
+            const link = `/admin/change-status/${type}/${id}/${status}`;
             const option = {
                 method: "PATCH"
             };
@@ -124,7 +144,7 @@ if (buttonsChangeStatus) {
             button.innerHTML = status === "active" ? "Hoạt động" : "Dừng hoạt động";
             button.classList.toggle("badge-success", status === "active");
             button.classList.toggle("badge-danger", status === "inactive");
-            button.setAttribute("data-status", status); 
+            button.setAttribute("data-status", status);
 
             fetch(link, option)
                 .then(res => res.json())
@@ -137,22 +157,12 @@ if (buttonsChangeStatus) {
                         button.setAttribute("data-status", currentStatus); // Khôi phục trạng thái
                         alert("Đã xảy ra lỗi, vui lòng thử lại."); // Thông báo lỗi
                     }
+                    if (data.code == 200) {
+                        showAlert.classList.remove("alert-hidden");
+                        showAlert.classList.remove("d-none");
+                        showMessage();
+                    }
                 })
         });
     });
-}
-
-//Show alert
-const showAlert = document.querySelector("[show-alert]")
-if(showAlert){
-    const time = parseInt(showAlert.getAttribute("data-time"))
-    const closeAlert = showAlert.querySelector("[close-alert]")
-
-    closeAlert.addEventListener("click", () => {
-        showAlert.classList.add("alert-hidden")
-    })
-
-    setTimeout(() => {
-        showAlert.classList.add("alert-hidden")
-    }, time)
 }

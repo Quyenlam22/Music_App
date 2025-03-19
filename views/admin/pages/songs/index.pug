@@ -1,6 +1,9 @@
 extends ../../layouts/default.pug
+include ../../mixins/show-alert.pug
 
 block main 
+    +alert-message(2000)
+
     h1.mb-4 #{pageTitle}
     .card.mb-3 
         .card-header Danh sách
@@ -57,7 +60,7 @@ block main
                                         href="javascript:;" 
                                         data-status=item.status
                                         data-id=item.id
-                                        button-change-status
+                                        button-change-status="songs"
                                         class="badge badge-success"
                                     ) Hoạt động 
                                 else
@@ -65,7 +68,7 @@ block main
                                         href="#javascript:" 
                                         data-status=item.status
                                         data-id=item.id
-                                        button-change-status
+                                        button-change-status="songs"
                                         class="badge badge-danger"
                                     ) Dừng hoạt động 
                             td 

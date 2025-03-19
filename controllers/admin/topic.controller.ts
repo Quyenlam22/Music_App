@@ -15,17 +15,21 @@ export const index = async (req: Request, res: Response) => {
 
 //[PATCH] /admin/topics/delete/:idTopic
 export const deleteTopic = async (req: Request, res: Response) => {
-    await Topic.updateOne({
-        _id: req.params.idTopic
-    }, {
-        deleted: true,
-        deletedAt: Date.now()
-    });
-    
-    // res.json({
-    //     code: 200,
-    //     message: "Deleted success!"
-    // });
-
+    try{
+        await Topic.updateOne({
+            _id: req.params.idTopic
+        }, {
+            deleted: true,
+            deletedAt: Date.now()
+        });
+        
+        // res.json({
+        //     code: 200,
+        //     message: "Deleted success!"
+        // });
+        req["flash"]("success", "Xóa chủ đề thành công!");
+    } catch(ex){
+        req["flash"]("error", "Có lỗi trong quá trình xóa chủ đề!");
+    }
     res.redirect("back");
 }

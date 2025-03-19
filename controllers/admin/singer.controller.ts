@@ -15,17 +15,21 @@ export const index = async (req: Request, res: Response) => {
 
 //[PATCH] /admin/singers/delete/:idSinger
 export const deleteSinger = async (req: Request, res: Response) => {
-    await Singer.updateOne({
-        _id: req.params.idSinger
-    }, {
-        deleted: true,
-        deletedAt: Date.now()
-    });
-    
-    // res.json({
-    //     code: 200,
-    //     message: "Deleted success!"
-    // });
-
+    try{
+        req["flash"]("success", "Xóa thông tin ca sĩ thành công!");
+        await Singer.updateOne({
+            _id: req.params.idSinger
+        }, {
+            deleted: true,
+            deletedAt: Date.now()
+        });
+        
+        // res.json({
+        //     code: 200,
+        //     message: "Deleted success!"
+        // });
+    } catch(ex){
+        req["flash"]("error", "Có lỗi trong quá trình xóa thông tin ca sĩ!");
+    }
     res.redirect("back");
 }

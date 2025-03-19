@@ -1,17 +1,42 @@
 import { Request, Response } from "express";
 import Singer from "../../models/singer.model";
+import Topic from "../../models/topic.model";
+import Song from "../../models/song.model";
 
 //[GET] /admin/change-status/:id/:status
 export const index = async (req: Request, res: Response) => {
-    await Singer.updateOne({
-        _id: req.params.id
-    }, {
-        status: req.params.status
-    })
-    
-    res.json({
-        code: 200,
-        message: "Change status success!",
-        status: req.params.status
-    });
+    try {
+        const type = req.params.type;
+        if (type == "topics") {
+            await Topic.updateOne({
+                _id: req.params.id
+            }, {
+                status: req.params.status
+            })
+        }
+        if (type == "singers") {
+            await Singer.updateOne({
+                _id: req.params.id
+            }, {
+                status: req.params.status
+            })
+        }
+        if (type == "songs") {
+            await Song.updateOne({
+                _id: req.params.id
+            }, {
+                status: req.params.status
+            })
+        }
+
+        res.json({
+            code: 200,
+            message: "Change status success!",
+        });
+    } catch(ex) {
+        res.json({
+            code: 400,
+            message: "Change status error!",
+        });
+    }
 }
