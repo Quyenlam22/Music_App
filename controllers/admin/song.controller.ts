@@ -82,27 +82,32 @@ export const createPost = async (req: Request, res: Response) => {
 
 //[GET] /admin/songs/edit/:idSong
 export const edit = async (req: Request, res: Response) => {
-    const song = await Song.findOne({
-        _id: req.params.idSong,
-        status: "active",
-        deleted: false
-    });
+    try {
+        const song = await Song.findOne({
+            _id: req.params.idSong,
+            status: "active",
+            deleted: false
+        });
 
-    const singers = await Singer.find({
-        status: "active",
-        deleted: false
-    }).select("fullName");
-    const topics = await Topic.find({
-        status: "active",
-        deleted: false
-    }).select("title");
+        const singers = await Singer.find({
+            status: "active",
+            deleted: false
+        }).select("fullName");
+        const topics = await Topic.find({
+            status: "active",
+            deleted: false
+        }).select("title");
 
-    res.render("admin/pages/songs/edit", {
-        pageTitle: "Chỉnh sửa bài hát",
-        song: song,
-        singers: singers,
-        topics: topics
-    });
+        res.render("admin/pages/songs/edit", {
+            pageTitle: "Chỉnh sửa bài hát",
+            song: song,
+            singers: singers,
+            topics: topics
+        });
+    } catch (ex) {
+        req["flash"]("error", "Có lỗi trong quá trình hiển thị dữ liệu!");
+        res.redirect(`${systemConfig.prefixAdmin}/songs`);
+    }
 }
 
 //[PATCH] /admin/songs/edit/:idSong
