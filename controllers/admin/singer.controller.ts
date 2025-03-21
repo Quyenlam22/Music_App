@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import Singer from "../../models/singer.model";
+import { systemConfig } from "../../config/config";
 
 //[GET] /admin/singers/
 export const index = async (req: Request, res: Response) => {
@@ -8,9 +9,74 @@ export const index = async (req: Request, res: Response) => {
     });
     
     res.render("admin/pages/singers/index", {
-        pageTitle: "Quản lý chủ đề",
+        pageTitle: "Quản lý ca sĩ",
         singers: singers
     });
+}
+
+//[GET] /admin/singers/create
+export const create = async (req: Request, res: Response) => {
+    res.render("admin/pages/singers/create", {
+        pageTitle: "Thêm mới ca sĩ",
+    });
+}
+
+//[POST] /admin/singers/create
+export const createPost = async (req: Request, res: Response) => {
+    try{
+        const dataSinger = {
+            fullName: req.body.fullName,
+            avatar: req.body.avatar,
+            status: req.body.status
+        };
+
+        const singer = new Singer(dataSinger);
+        await singer.save();
+        req["flash"]("success", "Thêm ca sĩ thành công!");
+        
+        res.redirect(`${systemConfig.prefixAdmin}/singers`);
+    } catch(ex) {
+        req["flash"]("error", "Có lỗi trong quá trình thêm ca sĩ!");
+        res.redirect("back");
+    }
+}
+
+//[GET] /admin/singers/edit/:id
+export const edit = async (req: Request, res: Response) => {
+    try{
+        const singer = await Singer.findOne({
+            _id: req.params.id,
+            deleted: false
+        });
+        
+        res.render("admin/pages/singers/edit", {
+            pageTitle: "Chỉnh sửa ca sĩ",
+            singer: singer
+        });
+    } catch(ex) {
+        req["flash"]("error", "Có lỗi trong quá trình hiển thị dữ liệu!");
+        res.redirect(`${systemConfig.prefixAdmin}/singers`);
+    }
+}
+
+//[PATCH] /admin/singers/edit/:id
+export const editPatch = async (req: Request, res: Response) => {
+    try{
+        const dataSinger = {
+            fullName: req.body.fullName,
+            avatar: req.body.avatar,
+            status: req.body.status
+        };
+
+        await Singer.updateOne({
+            _id: req.params.id
+        }, dataSinger);
+        req["flash"]("success", "Cập nhật thông tin ca sĩ thành công!");
+        
+    } catch(ex) {
+        req["flash"]("error", "Có lỗi trong quá trình cập nhật thông tin ca sĩ!");
+    }
+    res.redirect("back");
 }
 
 //[PATCH] /admin/singers/delete/:idSinger
