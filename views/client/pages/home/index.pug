@@ -6,3 +6,29 @@ block main
         .row 
             .col-12 
                 +box-head(pageTitle)
+        
+        .row 
+            each topic in topics
+                .col-6.mb-3  
+                    .card 
+                        img(src=topic.avatar, alt=topic.title)
+                        .card-body 
+                            h5(class="card-title") #{topic.title} 
+                            p(class="card-text") !{topic.description} 
+                            a(href=`/songs/${topic.slug}` class="btn btn-primary") Xem chi tiết
+
+        .show-more 
+            a(href="/topics") Xem thêm chủ đề
+
+        .row 
+            .col-12 
+                +box-head("Nhạc thịnh hành")
+
+        .row 
+            each song in songs
+                .col-6.mb-3  
+                    .card 
+                        img(src=song.avatar, alt=song.title)
+                        .card-body 
+                            h5(class="card-title") #{song.title} 
+                            a(href=`/songs/${song.slug}` class="btn btn-primary") Xem chi tiết
