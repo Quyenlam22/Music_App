@@ -6,7 +6,7 @@ header.header
                     a(href="/")
                         img(src=settingGeneral.logo, alt="Logo")
 
-            .col-5
+            .col-3
                 .box-search
                     form(
                         action="/search/result"
@@ -52,4 +52,23 @@ header.header
                                 href="/favorite/songs"
                                 class="toolbar"    
                             ) <i class="fa-solid fa-heart"></i> Yêu thích
-            
+
+            .col-2
+                if(userClient)
+                    a(
+                        href=`/user/info`
+                        class="btn btn-primary btn-sm mr-2"
+                    ) #{userClient.fullName}
+                    a(
+                        href=`/user/logout`
+                        class="btn btn-danger btn-sm"
+                    ) Đăng xuất
+                else
+                    a(
+                        href=`/user/login`
+                        class="btn btn-primary btn-sm mr-2"
+                    ) Đăng nhập
+                    a(
+                        href=`/user/register`
+                        class="btn btn-danger btn-sm"
+                    ) Đăng ký
