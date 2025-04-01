@@ -28,6 +28,10 @@ export const loginPost = async (req: Request, res: Response) => {
             req["flash"]("error", "Sai mật khẩu!");
             res.redirect("back");
         }
+        else if (user.status === "inactive") {
+            req["flash"]("error", "Tài khoản đã bị khóa!");
+            res.redirect("back");
+        }
         else {
             res.cookie("tokenUser", user.tokenUser, {
                 maxAge: 12 * 60 * 60 * 1000
