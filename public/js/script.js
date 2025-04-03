@@ -68,7 +68,9 @@ if (buttonLike) {
                 if (data.code == 200) {
                     const span = buttonLike.querySelector("span");
                     span.innerHTML = `${data.like} thích`;
-                    buttonLike.classList.toggle("active");
+                    buttonLike.classList.toggle("active");  
+                } else if (data.code == 400) {
+                    alert("Vui lòng đăng nhập để sử dụng tính năng!");
                 }
             })
     })
@@ -96,6 +98,8 @@ if (buttonFavorites.length > 0) {
                 .then(data => {
                     if (data.code == 200) {
                         buttonFavorite.classList.toggle("active");
+                    } else if (data.code == 400) {
+                        alert("Vui lòng đăng nhập để sử dụng tính năng!");
                     }
                 })
         })

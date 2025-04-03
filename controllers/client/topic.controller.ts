@@ -4,6 +4,7 @@ import Topic from "../../models/topic.model";
 //[GET] /topics
 export const topics = async (req: Request, res: Response) => {
     const topics = await Topic.find({
+        status: "active",
         deleted: false
     }).sort({createdAt: -1}); //Sort latest topic
     

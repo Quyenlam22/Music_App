@@ -9,10 +9,12 @@ const songSchema = new mongoose.Schema({
     description: String,
     singerId: String,
     topicId: String,
-    like: {
-        type: Number,
-        default: 0
-    },
+    // like: [
+    //     {
+    //         userId: String
+    //     }
+    // ],
+    like: Array,
     listen: {
         type: Number,
         default: 0
