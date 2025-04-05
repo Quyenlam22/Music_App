@@ -134,6 +134,7 @@ if (buttonsChangeStatus) {
             const type = button.getAttribute("button-change-status");
             const id = button.getAttribute("data-id");
             const currentStatus = button.getAttribute("data-status");
+            console.log(type)
             const status = currentStatus === "active" ? "inactive" : "active";
             const link = `/admin/change-status/${type}/${id}/${status}`;
             const option = {

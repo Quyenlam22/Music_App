@@ -99,3 +99,103 @@ export const logout = async (req: Request, res: Response) => {
         res.redirect("back")
     }
 }
+
+//[GET] /user/info
+export const info = async (req: Request, res: Response) => {
+    try {
+        res.render("client/pages/users/info", {
+            pageTitle: "Thông tin tài khoản",
+        });
+    } catch (error) {
+        req["flash"]("error", "Có lỗi xảy ra!")
+        res.redirect("back")
+    }
+}
+
+//[PATCH] /user/info
+export const infoPatch = async (req: Request, res: Response) => {
+    try {
+        await User.updateOne({
+            tokenUser: req.cookies.tokenUser
+        }, req.body);
+        req["flash"]("success", "Thay đổi thông tin thành công!");
+    } catch (error) {
+        req["flash"]("error", "Có lỗi xảy ra!");
+    }
+    res.redirect("back");
+}
+
+//[PATCH] /user/deleted
+export const deleted = async (req: Request, res: Response) => {
+    try {
+        await User.updateOne({
+            tokenUser: req.cookies.tokenUser
+        }, {
+            status: 'inactive'
+        });
+
+        res.clearCookie("tokenUser");
+
+        req["flash"]("success", "Xóa tài khoản thành công!");
+        res.json({
+            code: 200,
+            message: "Success"
+        })
+    } catch (error) {
+        req["flash"]("error", "Có lỗi xảy ra!");
+    }
+    // res.redirect("back");
+}
+
+//[GET] /user/change-password
+export const changePassword = async (req: Request, res: Response) => {
+    try {
+        res.render("client/pages/users/change-password", {
+            pageTitle: "Đổi mật khẩu",
+        });
+    } catch (error) {
+        req["flash"]("error", "Có lỗi xảy ra!");
+    }
+    // res.redirect("back");
+}
+
+export const changePasswordPatch = async (req: Request, res: Response) => {
+    try {
+        const user = await User.findOne({
+            tokenUser: req.cookies.tokenUser,
+            deleted: false,
+            status: "active"
+        });
+        if(user) {
+            if(md5(req.body.password) !== user["password"]) {
+                req["flash"]("error", "Mật khẩu cũ không đúng!");
+                res.redirect(`back`);
+            }
+
+            else if(req.body.newPassword !== req.body.confirmPassword) {
+                req["flash"]("error", "Mật khẩu mới và xác nhận mật khẩu không khớp!");
+                res.redirect(`back`);
+            }
+
+            else if(md5(req.body.newPassword) === user["password"]) {
+                req["flash"]("error", "Vui lòng nhập mật khẩu khác với mật khẩu gần nhất!");
+                res.redirect(`back`);
+            }
+
+            else{
+                await User.updateOne({
+                    tokenUser: req.cookies.tokenUser
+                }, {
+                    password: md5(req.body.newPassword)
+                });
+                req["flash"]("success", "Thay đổi mật khẩu thành công!");
+
+                res.redirect(`/user/info`);
+            }
+        }
+    } catch (error) {
+        req["flash"]("error", "Có lỗi xảy ra!");
+        res.redirect(`back`);
+
+    }
+}

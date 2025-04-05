@@ -134,6 +134,7 @@ export const like = async (req: Request, res: Response) => {
         });
     }
     else {
+        req["flash"]("error", "Vui lòng đăng nhập để sử dụng tính năng!");
         res.json({
             code: 400,
             message: "Error!"
@@ -175,6 +176,7 @@ export const favorite = async (req: Request, res: Response) => {
         });
     }
     else {
+        req["flash"]("error", "Vui lòng đăng nhập để sử dụng tính năng!");
         res.json({
             code: 400,
             message: "Error!"

@@ -29,9 +29,9 @@ export const checkUserClient = async (req, res, next) => {
     if(req.cookies.tokenUser){
         const user = await User.findOne({
             tokenUser: req.cookies.tokenUser
-        }).select("-password")
+        }).select("-password");
         if(user){
-            res.locals.userClient = user
+            res.locals.userClient = user;
         }
     }
 
