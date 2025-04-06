@@ -1,5 +1,6 @@
 extends ../../layouts/default.pug
 include ../../mixins/box-head.pug
+include ../../mixins/moment.pug
 
 block main
     .container.my-3 
@@ -19,4 +20,5 @@ block main
                                 a(href=`/songs/detail/${song.slug}`) #{song.title}
                             .inner-singer <i class="fa-solid fa-microphone-lines"></i> #{song.infoSinger.fullName} 
                             .inner-like <i class="fa-solid fa-thumbs-up"></i> #{song.like.length}
-                            .inner-time <i class="fa-solid fa-clock"></i> Hôm nay
+                            .inner-time <i class="fa-solid fa-clock me-1"></i>
+                                +formatDate(song.createdAt)

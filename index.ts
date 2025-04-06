@@ -9,6 +9,7 @@ import path from "path";
 import flash from 'express-flash';
 import cookieParser from "cookie-parser";
 import session from "express-session";
+import moment from "moment";
 
 env.config();
 
@@ -22,6 +23,7 @@ app.set("view engine", "pug");
 
 // Local variables
 app.locals.prefixAdmin = systemConfig.prefixAdmin;
+app.locals.moment = moment;
 
 // TinyMCE
 app.use('/tinymce', express.static(path.join(__dirname, 'node_modules', 'tinymce')))

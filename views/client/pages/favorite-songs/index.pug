@@ -1,5 +1,6 @@
 extends ../../layouts/default.pug
 include ../../mixins/box-head.pug
+include ../../mixins/moment.pug
 
 block main
     .container.my-3 
@@ -20,7 +21,8 @@ block main
                                     a(href=`/songs/detail/${favoriteSong.infoSong.slug}`) #{favoriteSong.infoSong.title}
                                 .inner-singer <i class="fa-solid fa-microphone-lines"></i> #{favoriteSong.infoSinger.fullName} 
                                 div(class="inner-heart active" button-favorite=favoriteSong.songId) <i class="fa-regular fa-heart"></i> Yêu thích
-                                .inner-time <i class="fa-solid fa-clock"></i> Hôm nay
+                                .inner-time <i class="fa-solid fa-clock"></i> 
+                                    +formatDate(favoriteSong.infoSong.createdAt)
             
             else 
                 h3.text-center Chưa có bài hát nào được thêm vào bài hát yêu thích

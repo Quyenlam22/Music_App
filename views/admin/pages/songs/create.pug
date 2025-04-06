@@ -39,39 +39,57 @@ block main
                 option(value="" disabled selected) -- Chọn ca sĩ --
                 each item in singers 
                     option(value=item.id) #{item.fullName}   
-        div(
-            class="form-group"
-            upload-image
-        )
-            label(for="avatar") Ảnh
+        div(class="form-group")
+            label(for="avatar") anh
             input(
-                type="file"
-                class="form-control-file"
+                type="text"
+                class="form-control"
                 id="avatar"
                 name="avatar"
-                accept="image/*"
-                upload-image-input
+                required
             )
-            img(
-                src=""
-                class="image-preview"
-                upload-image-preview
-            )
-        div(
-            class="form-group"
-            upload-audio
-        )
-            label(for="audio") File âm thanh
+        //- //- div(
+        //- //-     class="form-group"
+        //- //-     upload-image
+        //- //- )
+        //- //-     label(for="avatar") Ảnh
+        //- //-     input(
+        //- //-         type="file"
+        //- //-         class="form-control-file"
+        //- //-         id="avatar"
+        //- //-         name="avatar"
+        //- //-         accept="image/*"
+        //- //-         upload-image-input
+        //- //-     )
+        //- //-     img(
+        //- //-         src=""
+        //- //-         class="image-preview"
+        //- //-         upload-image-preview
+        //- //-     )
+        //- div(
+        //-     class="form-group"
+        //-     upload-audio
+        //- )
+        //-     label(for="audio") File âm thanh
+        //-     input(
+        //-         type="file"
+        //-         class="form-control-file"
+        //-         id="audio"
+        //-         name="audio"
+        //-         accept="audio/*"
+        //-         upload-audio-input
+        //-     )
+        //-     audio(controls upload-audio-play)
+        //-         source(src="")
+        div(class="form-group")
+            label(for="audio") audio đề
             input(
-                type="file"
-                class="form-control-file"
+                type="text"
+                class="form-control"
                 id="audio"
                 name="audio"
-                accept="audio/*"
-                upload-audio-input
+                required
             )
-            audio(controls upload-audio-play)
-                source(src="")
         div(class="form-group")
             label(for="description") Mô tả
             textarea(
