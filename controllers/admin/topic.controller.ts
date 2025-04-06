@@ -101,3 +101,21 @@ export const deleteTopic = async (req: Request, res: Response) => {
     }
     res.redirect("back");
 }
+
+//[GET] /admin/topics/detail/:id
+export const detail = async (req: Request, res: Response) => {
+    try{
+        const topic = await Topic.findOne({
+            _id: req.params.id,
+            deleted: false
+        });
+        
+        res.render("admin/pages/topics/detail", {
+            pageTitle: "Chi tiết chủ đề",
+            topic: topic
+        });
+    } catch(ex) {
+        req["flash"]("error", "Có lỗi trong quá trình hiển thị dữ liệu!");
+        res.redirect(`${systemConfig.prefixAdmin}/topics`);
+    }
+}

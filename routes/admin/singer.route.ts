@@ -20,4 +20,6 @@ router.patch("/edit/:id", upload.single("avatar"), uploadCloud.uploadSingle, con
 
 router.patch("/deleted/:idSinger", controller.deleteSinger);
 
+router.get("/detail/:id", controller.detail);
+
 export const singerRoutes: Router = router;

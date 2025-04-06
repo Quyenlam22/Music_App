@@ -162,3 +162,35 @@ export const deleteSong = async (req: Request, res: Response) => {
     res.redirect("back");
 
 }
+
+//[GET] /admin/songs/detail/:idSong
+export const detail = async (req: Request, res: Response) => {
+    try {
+        const song = await Song.findOne({
+            _id: req.params.idSong,
+            status: "active",
+            deleted: false
+        });
+
+        const singer = await Singer.findOne({
+            _id: song.singerId,
+            status: "active",
+            deleted: false
+        }).select("fullName");
+        const topic = await Topic.findOne({
+            _id: song.topicId,
+            status: "active",
+            deleted: false
+        }).select("title");
+
+        res.render("admin/pages/songs/detail", {
+            pageTitle: "Chi tiết bài hát",
+            song: song,
+            singer: singer,
+            topic: topic
+        });
+    } catch (ex) {
+        req["flash"]("error", "Có lỗi trong quá trình hiển thị dữ liệu!");
+        res.redirect(`${systemConfig.prefixAdmin}/songs`);
+    }
+}

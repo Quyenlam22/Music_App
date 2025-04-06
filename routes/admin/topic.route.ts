@@ -19,4 +19,6 @@ router.patch("/edit/:id", upload.single("avatar"), uploadCloud.uploadSingle, con
 
 router.patch("/deleted/:idTopic", controller.deleteTopic);
 
+router.get("/detail/:id", controller.detail);
+
 export const topicRoutes: Router = router;

@@ -99,3 +99,21 @@ export const deleteSinger = async (req: Request, res: Response) => {
     }
     res.redirect("back");
 }
+
+//[GET] /admin/singers/detail/:id
+export const detail = async (req: Request, res: Response) => {
+    try{
+        const singer = await Singer.findOne({
+            _id: req.params.id,
+            deleted: false
+        });
+        
+        res.render("admin/pages/singers/detail", {
+            pageTitle: "Thông tin ca sĩ",
+            singer: singer
+        });
+    } catch(ex) {
+        req["flash"]("error", "Có lỗi trong quá trình hiển thị dữ liệu!");
+        res.redirect(`${systemConfig.prefixAdmin}/singers`);
+    }
+}
