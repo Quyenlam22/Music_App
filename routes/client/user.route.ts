@@ -28,4 +28,16 @@ router.get("/change-password", authMiddleware.userClient, controller.changePassw
 
 router.patch("/change-password", controller.changePasswordPatch);
 
+router.get("/password/forgot", controller.forgotPassword);
+
+router.post("/password/forgot", controller.forgotPasswordPost);
+
+router.get("/password/otp", controller.otpPassword);
+
+router.post("/password/otp", controller.otpPasswordPost);
+
+router.get("/password/reset", controller.resetPassword);
+
+router.post("/password/reset", controller.resetPasswordPost);
+
 export const userRoutes: Router = router;
