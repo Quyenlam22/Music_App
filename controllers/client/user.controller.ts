@@ -171,12 +171,7 @@ export const changePasswordPatch = async (req: Request, res: Response) => {
                 req["flash"]("error", "Mật khẩu cũ không đúng!");
                 res.redirect(`back`);
             }
-
-            else if (req.body.newPassword !== req.body.confirmPassword) {
-                req["flash"]("error", "Mật khẩu mới và xác nhận mật khẩu không khớp!");
-                res.redirect(`back`);
-            }
-
+            
             else if (md5(req.body.newPassword) === user["password"]) {
                 req["flash"]("error", "Vui lòng nhập mật khẩu khác với mật khẩu gần nhất!");
                 res.redirect(`back`);
@@ -317,7 +312,7 @@ export const resetPasswordPost = async (req: Request, res: Response) => {
             res.clearCookie("emailUser");
 
             req["flash"]("success", " Cập nhật mật khẩu thành công!")
-            res.redirect('/')
+            res.redirect('/user/login')
         }
         else {
             req["flash"]("error", "Email không hợp lệ!");
