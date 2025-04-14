@@ -8,18 +8,24 @@ import { singerRoutes } from "./singer.route";
 import { settingRoutes } from "./setting.route";
 import { changeStatusRoutes } from "./change-status.route";
 import { userRoutes } from "./user.route";
+import { authRoutes } from "./auth.route";
+import { accountRoutes } from "./account.route";
+
+import * as authMiddleware from "../../middlewares/auth.middleware";
 
 const adminRoutes = (app: Express): void => {
     const PATH_ADMIN = `${systemConfig.prefixAdmin}`;
 
-    app.use(`${PATH_ADMIN}/dashboard`, dashboardRoutes);
-    app.use(`${PATH_ADMIN}/topics`, topicRoutes);
-    app.use(`${PATH_ADMIN}/songs`, songRoutes);
-    app.use(`${PATH_ADMIN}/upload`, uploadRoutes);
-    app.use(`${PATH_ADMIN}/singers`, singerRoutes);
-    app.use(`${PATH_ADMIN}/settings`, settingRoutes);
-    app.use(`${PATH_ADMIN}/change-status`, changeStatusRoutes);
-    app.use(`${PATH_ADMIN}/users`, userRoutes);
+    app.use(`${PATH_ADMIN}/dashboard`, authMiddleware.checkAdmin, dashboardRoutes);
+    app.use(`${PATH_ADMIN}/topics`, authMiddleware.checkAdmin, topicRoutes);
+    app.use(`${PATH_ADMIN}/songs`, authMiddleware.checkAdmin, songRoutes);
+    app.use(`${PATH_ADMIN}/upload`, authMiddleware.checkAdmin, uploadRoutes);
+    app.use(`${PATH_ADMIN}/singers`, authMiddleware.checkAdmin, singerRoutes);
+    app.use(`${PATH_ADMIN}/settings`, authMiddleware.checkAdmin, settingRoutes);
+    app.use(`${PATH_ADMIN}/change-status`, authMiddleware.checkAdmin, changeStatusRoutes);
+    app.use(`${PATH_ADMIN}/users`, authMiddleware.checkAdmin, userRoutes);
+    app.use(`${PATH_ADMIN}/auth`, authRoutes);
+    app.use(`${PATH_ADMIN}/accounts`, authMiddleware.checkAdmin, accountRoutes);
 };
 
 export default adminRoutes;

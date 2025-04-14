@@ -3,6 +3,7 @@ import Singer from "../../models/singer.model";
 import Topic from "../../models/topic.model";
 import Song from "../../models/song.model";
 import User from "../../models/user.model";
+import Account from "../../models/account.model";
 
 //[GET] /admin/change-status/:id/:status
 export const index = async (req: Request, res: Response) => {
@@ -31,6 +32,13 @@ export const index = async (req: Request, res: Response) => {
         }
         if (type == "users") {
             await User.updateOne({
+                _id: req.params.id
+            }, {
+                status: req.params.status
+            })
+        }
+        if (type == "accounts") {
+            await Account.updateOne({
                 _id: req.params.id
             }, {
                 status: req.params.status
