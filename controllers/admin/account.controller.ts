@@ -46,7 +46,7 @@ export const createPost = async (req: Request, res: Response) => {
 
             const account = new Account(dataAccount);
             await account.save();
-            
+
             req["flash"]("success", "Thêm tài khoản thành công!");
             res.redirect(`${systemConfig.prefixAdmin}/accounts`);
         } else {
@@ -99,17 +99,17 @@ export const editPatch = async (req: Request, res: Response) => {
 
         if (!existAccount) {
             if (req.body.password) {
-                dataAccount["password"] = req.body.password;
+                dataAccount["password"] = md5(req.body.password);
             }
 
             await Account.updateOne({
                 _id: req.params.id
             }, dataAccount);
+            req["flash"]("success", "Chỉnh sửa tài khoản thành công!");
+
         } else {
             req["flash"]("error", `Email ${req.body.email} đã tồn tại!`);
         }
-
-        req["flash"]("success", "Chỉnh sửa tài khoản thành công!");
     } catch (error) {
         req["flash"]("error", "Có lỗi trong quá trình chỉnh sửa tài khoản!");
     }
