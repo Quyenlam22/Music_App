@@ -1,22 +1,19 @@
 extends ../../layouts/default.pug
-//- include ../../mixins/pagination.pug
+include ../../mixins/filter-status.pug
+include ../../mixins/search.pug
 
-block main  
-
-    h1 #{pageTitle}
+block main 
+    h1.mb-4 #{pageTitle}
     .card.mb-3 
-        .card-header Danh sách
+        .card-header Bộ lọc và tìm kiếm
         .card-body
             .row 
-                .col-8 
-                .col-4 
-                    a(
-                        href=`${prefixAdmin}/accounts/create`
-                        class="btn btn-outline-success"
-                    ) + Thêm mới 
+                .col-6
+                    +filter-status(filterStatus)
+                .col-6
+                    +search(keyword)
 
             if(accounts.length > 0)
-
                 table(
                     class="table table-hover table-sm"
                 )
@@ -75,13 +72,14 @@ block main
                                             button-deleted
                                             data-id=item.id
                                         ) Xóa
+                        
                         form(
                             action="" 
                             method="POST"
                             id="form-deleted"
                             data-path=`${prefixAdmin}/accounts/deleted`
                         )
-            else
-                h3(class="text-center my-2") Chưa có tài khoản nào được tạo
+            else 
+                h3.text-center.my-2 Không tìm thấy kết quả phù hợp      
 
     //- +pagination(pagination)

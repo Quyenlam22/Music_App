@@ -4,11 +4,28 @@ import Song from "../../models/song.model";
 import Singer from "../../models/singer.model";
 import { systemConfig } from "../../config/config";
 
+import filterStatusHelper from "../../helpers/filterStatus";
+import searchHelper from "../../helpers/search";
+
 //[GET] /admin/songs/
 export const index = async (req: Request, res: Response) => {
-    const songs = await Song.find({
+    let find = {
         deleted: false
-    });
+    };
+
+    const filterStatus = filterStatusHelper(req.query)
+    //Filter Status
+    if (req.query.status)
+        find["status"] = req.query.status;
+
+    //SEARCH
+    const objectSearch = searchHelper(req.query);
+    if (objectSearch.keyword) {
+        // find['title'] = objectSearch['regex'];
+        find['slug'] = objectSearch['regex'];
+    }
+
+    const songs = await Song.find(find);
 
     for (const song of songs) {
         const infoSinger = await Singer.findOne({
@@ -24,7 +41,9 @@ export const index = async (req: Request, res: Response) => {
 
     res.render("admin/pages/songs/index", {
         pageTitle: "Quản lý bài hát",
-        songs: songs
+        songs: songs,
+        filterStatus: filterStatus,
+        keyword: objectSearch.keyword
     });
 }
 

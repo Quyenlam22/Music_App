@@ -5,15 +5,34 @@ import md5 from "md5";
 import * as generate from "../../helpers/generate";
 import { systemConfig } from "../../config/config";
 
+import filterStatusHelper from "../../helpers/filterStatus";
+import searchHelper from "../../helpers/search";
+
 //[GET] /admin/auth/index
 export const index = async (req: Request, res: Response) => {
-    const accounts = await Account.find({
+    let find = {
         deleted: false
-    });
+    };
+
+    const filterStatus = filterStatusHelper(req.query)
+    //Filter Status
+    if (req.query.status)
+        find["status"] = req.query.status;
+
+    //SEARCH
+    const objectSearch = searchHelper(req.query);
+    if (objectSearch.keyword) {
+        // find['title'] = objectSearch['regex'];
+        find['slug'] = objectSearch['regex'];
+    }
+
+    const accounts = await Account.find(find);
 
     res.render("admin/pages/accounts/index", {
         pageTitle: "Danh sách tài khoản admin",
-        accounts: accounts
+        accounts: accounts,
+        filterStatus: filterStatus,
+        keyword: objectSearch.keyword
     });
 }
 

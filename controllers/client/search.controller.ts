@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import Singer from "../../models/singer.model";
 import Song from "../../models/song.model";
 
-import { converToSlug } from "../../helpers/convertToSlug.helper";
+import { convertToSlug } from "../../helpers/convertToSlug";
 
 //[GET] /search/:type
 export const result = async (req: Request, res: Response) => {
@@ -14,7 +14,7 @@ export const result = async (req: Request, res: Response) => {
     if (keyword) {
         const keywordRegex = new RegExp(keyword, "i");
 
-        const stringSlug = converToSlug(keyword);
+        const stringSlug = convertToSlug(keyword);
         const stringSlugRegex = new RegExp(stringSlug, "i");
 
         const songs = await Song.find({

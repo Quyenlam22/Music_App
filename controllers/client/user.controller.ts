@@ -4,7 +4,7 @@ import User from "../../models/user.model";
 import md5 from "md5";
 
 import * as generate from "../../helpers/generate";
-import { sendMail } from "../../helpers/sendMail.helper";
+import { sendMail } from "../../helpers/sendMail";
 import ForgotPassword from "../../models/forgot-password.model";
 
 //[GET] /user/login

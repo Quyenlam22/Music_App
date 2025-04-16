@@ -1,7 +1,18 @@
 extends ../../layouts/default.pug
+include ../../mixins/filter-status.pug
+include ../../mixins/search.pug
 
 block main 
     h1.mb-4 #{pageTitle}
+    .card.mb-3 
+        .card-header Bộ lọc và tìm kiếm
+        .card-body
+            .row 
+                .col-6
+                    +filter-status(filterStatus)
+                .col-6
+                    +search(keyword)
+
     .card.mb-3 
         .card-header Danh sách
         .card-body
@@ -13,72 +24,76 @@ block main
                         class="btn btn-outline-success"
                     ) + Thêm mới 
 
-            table(
-                class="table table-hover table-sm"
-                checkbox-multi
-            )
-                thead 
-                    tr 
-                        th 
-                            input(type="checkbox" name="checkall")
-                        th STT 
-                        th Hình ảnh
-                        th Tiêu đề
-                        th Trạng thái
-                        th Hoạt động
+            if(topics.length > 0)
+                table(
+                    class="table table-hover table-sm"
+                    checkbox-multi
+                )
+                    thead 
+                        tr 
+                            th 
+                                input(type="checkbox" name="checkall")
+                            th STT 
+                            th Hình ảnh
+                            th Tiêu đề
+                            th Trạng thái
+                            th Hoạt động
 
-                tbody
-                    each item, index in topics
-                        tr
-                            td 
-                                input(
-                                    type="checkbox"
-                                    name="id"
-                                    value=item.id
-                                )
-                            td #{index + 1}
-                            td
-                                img(
-                                    src=item.avatar
-                                    alt=item.title
-                                    width="100px"
-                                    height="auto"
+                    tbody
+                        each item, index in topics
+                            tr
+                                td 
+                                    input(
+                                        type="checkbox"
+                                        name="id"
+                                        value=item.id
                                     )
-                            td #{item.title}
-                            td
-                                if(item.status == "active")
+                                td #{index + 1}
+                                td
+                                    img(
+                                        src=item.avatar
+                                        alt=item.title
+                                        width="100px"
+                                        height="auto"
+                                        )
+                                td #{item.title}
+                                td
+                                    if(item.status == "active")
+                                        a(
+                                            href="javascript:;" 
+                                            data-status=item.status
+                                            data-id=item.id
+                                            button-change-status="topics"
+                                            class="badge badge-success"
+                                        ) Hoạt động 
+                                    else
+                                        a(
+                                            href="#javascript:" 
+                                            data-status=item.status
+                                            data-id=item.id
+                                            button-change-status="topics"
+                                            class="badge badge-danger"
+                                        ) Dừng hoạt động 
+                                td 
                                     a(
-                                        href="javascript:;" 
-                                        data-status=item.status
-                                        data-id=item.id
-                                        button-change-status="topics"
-                                        class="badge badge-success"
-                                    ) Hoạt động 
-                                else
+                                        href=`${prefixAdmin}/topics/detail/${item.id}`
+                                        class="btn btn-secondary btn-sm"
+                                        style="margin-right: 3px"
+                                    ) Chi tiết
                                     a(
-                                        href="#javascript:" 
-                                        data-status=item.status
+                                        href=`${prefixAdmin}/topics/edit/${item.id}`
+                                        class="btn btn-warning btn-sm"
+                                        button-edit
                                         data-id=item.id
-                                        button-change-status="topics"
-                                        class="badge badge-danger"
-                                    ) Dừng hoạt động 
-                            td 
-                                a(
-                                    href=`${prefixAdmin}/topics/detail/${item.id}`
-                                    class="btn btn-secondary btn-sm"
-                                    style="margin-right: 3px"
-                                ) Chi tiết
-                                a(
-                                    href=`${prefixAdmin}/topics/edit/${item.id}`
-                                    class="btn btn-warning btn-sm"
-                                    button-edit
-                                    data-id=item.id
-                                    ) Sửa 
-                                button(
-                                    class="btn btn-danger btn-sm ml-1"
-                                    button-deleted
-                                    data-id=item.id
-                                    ) Xóa
+                                        ) Sửa 
+                                    button(
+                                        class="btn btn-danger btn-sm ml-1"
+                                        button-deleted
+                                        data-id=item.id
+                                        ) Xóa
+
+            else 
+                h3.text-center.my-2 Không tìm thấy kết quả phù hợp      
 
     form(
             action="" 
