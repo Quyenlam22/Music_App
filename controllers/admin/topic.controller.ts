@@ -4,6 +4,7 @@ import { systemConfig } from "../../config/config";
 
 import filterStatusHelper from "../../helpers/filterStatus";
 import searchHelper from "../../helpers/search";
+import paginationHelper from "../../helpers/pagination";
 
 //[GET] /admin/topics/
 export const index = async (req: Request, res: Response) => {
@@ -23,13 +24,27 @@ export const index = async (req: Request, res: Response) => {
         find['slug'] = objectSearch['regex'];
     }
 
-    const topics = await Topic.find(find);
+    // PAGINATION
+    const countProducts = await Topic.countDocuments(find);
+
+    let objectPagination = paginationHelper({
+        currentPage: 1,
+        limitItems: 3
+    },
+        req.query,
+        countProducts
+    )
+
+    const topics = await Topic.find(find)
+        .limit(objectPagination.limitItems)
+        .skip(objectPagination.skip);
 
     res.render("admin/pages/topics/index", {
         pageTitle: "Quản lý chủ đề",
         topics: topics,
         filterStatus: filterStatus,
-        keyword: objectSearch.keyword
+        keyword: objectSearch.keyword,
+        pagination: objectPagination
     });
 }
 
@@ -137,4 +152,63 @@ export const detail = async (req: Request, res: Response) => {
         req["flash"]("error", "Có lỗi trong quá trình hiển thị dữ liệu!");
         res.redirect(`${systemConfig.prefixAdmin}/topics`);
     }
+}
+
+// [PATCH] /admin/topics/change-multi
+export const changeMulti = async (req: Request, res: Response) => {
+        const type = req.body.type;
+        const ids = req.body.ids.split(", ");
+
+        switch (type) {
+            case "active":
+                try {
+                    await Topic.updateMany({
+                        _id: {
+                            $in: ids
+                        }
+                    }, {
+                        status: "active"
+                    });
+                    req["flash"]("success", `Cập nhật trạng thái thành công!`);
+                } catch (error) {
+                    req["flash"]("error", `Cập nhật trạng thái cho ${ids.length} ca sĩ thất bại!`);
+                }
+                break;
+            case "inactive":
+                try {
+                    await Topic.updateMany({
+                        _id: {
+                            $in: ids
+                        }
+                    }, {
+                        status: "inactive"
+                    })
+                    req["flash"]("success", `Cập nhật trạng thái thành công!`);
+                } catch (error) {
+                    req["flash"]("error", `Cập nhật trạng thái cho ${ids.length} ca sĩ thất bại!`);
+                }
+                break;
+            case "delete-all":
+                try {
+                    await Topic.updateMany({
+                        _id: {
+                            $in: ids
+                        }
+                    }, {
+                        deleted: true,
+                        deletedAt: new Date()
+                        // deletedBy: {
+                        //     account_id: res.locals.user.id,
+                        //     deletedAt: new Date()
+                        // }
+                    });
+                    req["flash"]("success", `Xóa ca sĩ thành công!`);
+                } catch (error) {
+                    req["flash"]("error", `Xóa ${ids.length} ca sĩ thất bại!`);
+                }
+                break;
+            default:
+                break;
+        }
+        res.redirect("back");
 }

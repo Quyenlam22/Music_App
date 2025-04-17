@@ -21,4 +21,6 @@ router.patch("/deleted/:id", controller.deletedAccount);
 
 router.get("/detail/:id", controller.detail);
 
+router.patch("/change-multi", controller.changeMulti);
+
 export const accountRoutes: Router = router;

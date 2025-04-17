@@ -40,4 +40,6 @@ router.patch("/deleted/:idSong", controller.deleteSong);
 
 router.get("/detail/:idSong", controller.detail);
 
+router.patch("/change-multi", controller.changeMulti);
+
 export const songRoutes: Router = router;

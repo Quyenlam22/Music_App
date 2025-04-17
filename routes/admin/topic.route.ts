@@ -22,4 +22,6 @@ router.patch("/deleted/:idTopic", controller.deleteTopic);
 
 router.get("/detail/:id", controller.detail);
 
+router.patch("/change-multi", controller.changeMulti);
+
 export const topicRoutes: Router = router;
