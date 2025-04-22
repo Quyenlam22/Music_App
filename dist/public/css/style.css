@@ -337,3 +337,32 @@ body {
     color: #282828;
     margin-bottom: 2px;
 }
+
+
+/* Show more */
+.show-more{
+    display: flex;
+    justify-content: center;
+    margin: 10px;
+}
+
+.avatar {
+    width: 100%;
+}
+
+.image-preview {
+    width: 150px;
+    height: auto;
+    margin-top: 15px;
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 5px;
+}
+
+.image-preview[src=""] {
+    display: none;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}

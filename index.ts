@@ -10,7 +10,7 @@ import flash from 'express-flash';
 import cookieParser from "cookie-parser";
 import session from "express-session";
 import moment from "moment";
-
+import { chart } from "./middlewares/chart.middleware";
 env.config();
 
 const app: Express = express();
@@ -29,7 +29,12 @@ app.locals.moment = moment;
 app.use('/tinymce', express.static(path.join(__dirname, 'node_modules', 'tinymce')))
 
 app.use(cookieParser("KEYBOARD"));
-app.use(session({ cookie: { maxAge: 60000 } }));
+app.use(session({
+    secret: process.env.SESSION_SECRET, 
+    resave: false,
+    saveUninitialized: true,
+    cookie: { maxAge: 60000 }
+}));
 app.use(flash());
 
 //Body-parse
@@ -39,6 +44,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'))
 
 database.connect();
+
+app.use(chart);
 
 clientRoutes(app);
 adminRoutes(app);

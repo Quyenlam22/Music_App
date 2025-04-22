@@ -15,14 +15,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.result = void 0;
 const singer_model_1 = __importDefault(require("../../models/singer.model"));
 const song_model_1 = __importDefault(require("../../models/song.model"));
-const convertToSlug_helper_1 = require("../../helpers/convertToSlug.helper");
+const convertToSlug_1 = require("../../helpers/convertToSlug");
 const result = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const type = req.params.type;
     const keyword = `${req.query.keyword}`;
     let newSongs = [];
     if (keyword) {
         const keywordRegex = new RegExp(keyword, "i");
-        const stringSlug = (0, convertToSlug_helper_1.converToSlug)(keyword);
+        const stringSlug = (0, convertToSlug_1.convertToSlug)(keyword);
         const stringSlugRegex = new RegExp(stringSlug, "i");
         const songs = yield song_model_1.default.find({
             $or: [

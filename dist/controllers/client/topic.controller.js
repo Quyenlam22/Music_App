@@ -16,8 +16,9 @@ exports.topics = void 0;
 const topic_model_1 = __importDefault(require("../../models/topic.model"));
 const topics = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const topics = yield topic_model_1.default.find({
+        status: "active",
         deleted: false
-    });
+    }).sort({ createdAt: -1 });
     res.render("client/pages/topics/index", {
         pageTitle: "Chủ đề bài hát",
         topics: topics

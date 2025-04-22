@@ -1,0 +1,90 @@
+extends ../../layouts/default.pug
+include ../../mixins/filter-status.pug
+include ../../mixins/search.pug
+include ../../mixins/pagination.pug
+
+block main 
+    h1.mb-4 #{pageTitle}
+    .card.mb-3 
+        .card-header Bộ lọc và tìm kiếm
+        .card-body
+            .row.my-3
+                .col-6
+                    +filter-status(filterStatus)
+                .col-6
+                    +search(keyword)
+                     
+            if(users.length > 0)
+                table(
+                    class="table table-hover table-sm"
+                    checkbox-multi
+                )
+                    thead 
+                        tr 
+                            th 
+                                input(type="checkbox" name="checkall")
+                            th STT 
+                            th Avatar
+                            th Tên
+                            th Email
+                            th Số điện thoại
+                            //- th Vị trí
+                            th Trạng thái
+                            th Hoạt động
+
+                    tbody
+                        each item, index in users
+                            tr
+                                td 
+                                    input(
+                                        type="checkbox"
+                                        name="id"
+                                        value=item.id
+                                    )
+                                td #{(pagination.currentPage - 1) * pagination.limitItems + (index + 1)} 
+                                td
+                                    img(
+                                        src=(item.avatar ? item.avatar : "/images/avatar.png")
+                                        alt=item.title
+                                        width="100px"
+                                        height="auto"
+                                        )
+                                td #{item.fullName}
+                                td #{item.email}
+                                td #{item.phone}
+                                //- td #{Dữ liêu vị trí}
+                                td
+                                    if(item.status == "active")
+                                        a(
+                                            href="javascript:;" 
+                                            data-status=item.status
+                                            data-id=item.id
+                                            button-change-status="users"
+                                            class="badge badge-success"
+                                        ) Hoạt động 
+                                    else
+                                        a(
+                                            href="#javascript:" 
+                                            data-status=item.status
+                                            data-id=item.id
+                                            button-change-status="users"
+                                            class="badge badge-danger"
+                                        ) Dừng hoạt động 
+                                td 
+                                    button(
+                                        class="btn btn-danger btn-sm ml-1"
+                                        button-deleted
+                                        data-id=item.id
+                                        ) Xóa
+            
+            else 
+                h3.text-center.my-2 Không tìm thấy kết quả phù hợp      
+
+    +pagination(pagination)
+
+    form(
+            action="" 
+            method="POST"
+            id="form-deleted"
+            data-path=`${prefixAdmin}/users/deleted`
+        )

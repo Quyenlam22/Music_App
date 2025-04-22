@@ -1,4 +1,236 @@
 extends ../../layouts/default.pug
-
+include ../../mixins/moment.pug
 block main 
-    h1 Trang tổng quan
+    h1 #{pageTitle}
+    .pagetitle
+        nav
+            ol.breadcrumb
+                li.breadcrumb-item
+                    a(href=`${prefixAdmin}/dashboard`) Home
+                li.breadcrumb-item #{pageTitle}
+    // End Page Title
+    section.section.dashboard
+        .row
+            // Left side columns
+            .col-lg-7
+                .row
+                    .col-xxl-4.col-md-6
+                        .card.info-card.sales-card
+                            .filter
+                                a.icon(href='#' data-bs-toggle='dropdown')
+                                    i.bi.bi-three-dots
+                                ul.dropdown-menu.dropdown-menu-end.dropdown-menu-arrow
+                                    li.dropdown-header.text-start
+                                        h6 Bộ lọc
+                                    li
+                                        a.dropdown-item(href='#') Hôm nay
+                                    li
+                                        a.dropdown-item(href='#') Tháng 
+                                    li
+                                        a.dropdown-item(href='#') Năm
+                            .card-body
+                                h5.card-title
+                                    | Lượt nghe 
+                                    span | Tháng 
+                                .d-flex.align-items-center
+                                    .card-icon.rounded-circle.d-flex.align-items-center.justify-content-center
+                                        i.bi.bi-headphones 
+                                    .ps-3
+                                        h6 #{objectCharts.totalListen}
+                                        span.text-success.small.pt-1.fw-bold 12%
+                                        |  
+                                        span.text-muted.small.pt-1.ps-1 tăng
+                    // End Sales Card
+                    // Revenue Card
+                    .col-xxl-4.col-md-6
+                        .card.info-card.revenue-card
+                            .filter
+                                a.icon(href='#' data-bs-toggle='dropdown')
+                                    i.bi.bi-three-dots
+                                ul.dropdown-menu.dropdown-menu-end.dropdown-menu-arrow
+                                    li.dropdown-header.text-start
+                                        h6 Bộ lọc
+                                    li
+                                        a.dropdown-item(href='#') Hôm nay
+                                    li
+                                        a.dropdown-item(href='#') Tháng 
+                                    li
+                                        a.dropdown-item(href='#') Năm
+                            .card-body
+                                h5.card-title
+                                    | Lượt thích
+                                    span | Tháng 
+                                .d-flex.align-items-center
+                                    .card-icon.rounded-circle.d-flex.align-items-center.justify-content-center
+                                        i.bi.bi-heart
+                                    .ps-3
+                                        h6 #{objectCharts.totalLike}
+                                        span.text-success.small.pt-1.fw-bold 8%
+                                        |  
+                                        span.text-muted.small.pt-1.ps-1 tăng
+                    // End Revenue Card
+                    // Customers Card
+                    .col-xxl-4.col-xl-12
+                        .card.info-card.customers-card
+                            .filter
+                                a.icon(href='#' data-bs-toggle='dropdown')
+                                    i.bi.bi-three-dots
+                                ul.dropdown-menu.dropdown-menu-end.dropdown-menu-arrow
+                                    li.dropdown-header.text-start
+                                        h6 Filter
+                                    li
+                                        a.dropdown-item(href='#') Hôm nay
+                                    li
+                                        a.dropdown-item(href='#') Tháng 
+                                    li
+                                        a.dropdown-item(href='#') Năm
+                            .card-body
+                                h5.card-title
+                                    | Lưu lượng truy cập 
+                                    span | Năm
+                                .d-flex.align-items-center
+                                    .card-icon.rounded-circle.d-flex.align-items-center.justify-content-center
+                                        i.bi.bi-people
+                                    .ps-3
+                                        h6 #{objectCharts.totalAccess}
+                                        span.text-danger.small.pt-1.fw-bold 12%
+                                        |  
+                                        span.text-muted.small.pt-1.ps-1 decrease
+                    // End Customers Card
+                    // Reports
+                    .col-12
+                        .card
+                            .filter
+                                a.icon(href='#' data-bs-toggle='dropdown')
+                                    i.bi.bi-three-dots
+                                ul.dropdown-menu.dropdown-menu-end.dropdown-menu-arrow
+                                    li.dropdown-header.text-start
+                                        h6 Filter
+                                    li
+                                        a.dropdown-item(href='#') Hôm nay
+                                    li
+                                        a.dropdown-item(href='#') Tháng 
+                                    li
+                                        a.dropdown-item(href='#') Năm
+                            .card-body
+                                h5.card-title
+                                    | Báo cáo 
+                                    span /Hôm nay
+                                // Line Chart
+                                #reportsChart
+                                    script.
+                                        document.addEventListener("DOMContentLoaded", () => {
+                                            new ApexCharts(document.querySelector("#reportsChart"), {
+                                                series: [{
+                                                    name: 'Lượt nghe',
+                                                    data: #{totalListen},
+                                                }, {
+                                                    name: 'Lượt thích',
+                                                    data: #{totalLike}
+                                                }, {
+                                                    name: 'Lưu lượng truy cập',
+                                                    data: #{totalAccess}
+                                                }],
+                                                chart: {
+                                                    height: 350,
+                                                    type: 'area',
+                                                    toolbar: { show: false },
+                                                },
+                                                markers: { size: 4 },
+                                                colors: ['#4154f1', '#2eca6a', '#FF0000'],
+                                                fill: {
+                                                    type: "gradient",
+                                                    gradient: {
+                                                        shadeIntensity: 1,
+                                                        opacityFrom: 0.3,
+                                                        opacityTo: 0.4,
+                                                        stops: [0, 90, 100]
+                                                    }
+                                                },
+                                                dataLabels: { enabled: false },
+                                                stroke: {
+                                                    curve: 'smooth',
+                                                    width: 2
+                                                },
+                                                xaxis: {
+                                                    type: 'datetime',
+                                                    categories: !{JSON.stringify(timeCreated)}
+                                                },
+                                                tooltip: { x: { format: 'dd/MM/yy HH:mm' } }
+                                            }).render();
+                                        });
+                                // End Line Chart
+                                // End Reports
+
+                    .col-12
+                        .card.top-selling.overflow-auto
+                            .filter
+                                a.icon(href='#' data-bs-toggle='dropdown')
+                                    i.bi.bi-three-dots
+                                ul.dropdown-menu.dropdown-menu-end.dropdown-menu-arrow
+                                    li.dropdown-header.text-start
+                                        h6 Bộ lọc
+                                    li
+                                        a.dropdown-item(href='#') Hôm nay
+                                    li
+                                        a.dropdown-item(href='#') Tháng 
+                                    li
+                                        a.dropdown-item(href='#') Năm
+                            .card-body.pb-0
+                                h5.card-title
+                                    | Top bài hát hay nhất
+                                    //- span | Hôm nay
+                                table.table.table-borderless
+                                    thead
+                                        tr
+                                            th(scope='col') Preview
+                                            th(scope='col') Tên bài hát
+                                            th(scope='col') Ca sĩ
+                                            th(scope='col') Số lượt thích
+                                            th(scope='col') Số lượt nghe
+                                    tbody
+                                        each item in records 
+                                            tr
+                                                th(scope='row')
+                                                    a(href='#')
+                                                        img(src=item.avatar, alt=item.title)
+                                                td
+                                                    a.text-primary.fw-bold(href='#') #{item.title}
+                                                td.fw-bold #{item.singer.fullName}
+                                                td #{(item.like).length}
+                                                td #{(item.listen)}
+                    // End Left side columns
+                    // Right side columns
+            .col-lg-5
+                // Recent Activity
+                .card
+                    .filter
+                        a.icon(href='#' data-bs-toggle='dropdown')
+                            i.bi.bi-three-dots
+                        ul.dropdown-menu.dropdown-menu-end.dropdown-menu-arrow
+                            li.dropdown-header.text-start
+                                h6 Filter
+                            li
+                                button(class="dropdown-item recent-activity" value="Today") Hôm nay
+                            li
+                                button(class="dropdown-item recent-activity" value="This Month") Tháng 
+                            li
+                                button(class="dropdown-item recent-activity" value="This Year") Năm
+                    .card-body
+                        h5.card-title
+                            | Recent Activity 
+                            span(id="time-active") | Hôm nay
+                        if(timeLogs.length > 0)
+                            each timeLog in timeLogs
+                                .activity
+                                    .activity-item.d-flex
+                                        .activite-label 
+                                            +formatDateTime(timeLog.createdAt)
+                                        i.bi.bi-circle-fill.activity-badge.text-success.align-self-start
+                                        .activity-content
+                                            | #{timeLog.accountFullName} - #{timeLog.accountRoleTitle}
+                        else 
+                            p Không có hoạt động nào gần đây!
+                                    // End activity item
+            // End Right side columns
+            // Vendor JS Files

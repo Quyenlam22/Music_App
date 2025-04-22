@@ -222,7 +222,7 @@ if(buttonsPagination){
 
 // Checkbox Multi
 const checkboxMulti = document.querySelector("[checkbox-multi]");
-console.log(checkboxMulti)
+
 if (checkboxMulti) {
     const inputCheckAll = checkboxMulti.querySelector("input[name='checkall']");
     const inputsId = checkboxMulti.querySelectorAll("input[name='id']");

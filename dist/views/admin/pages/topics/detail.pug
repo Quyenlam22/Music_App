@@ -1,0 +1,33 @@
+extends ../../layouts/default.pug
+include ../../mixins/moment.pug
+
+block main 
+    if(topic.title)
+        h1(class="mb-4") Chi tiết chủ đề - #{topic.title}
+
+    if(topic.description)
+        div(class="mb-4") Mô tả: <b>!{topic.description}</b>
+
+    if(topic.avatar)
+        div(class="mb-4")
+            img(
+                src=topic.avatar
+                style="width: 100px"
+            )
+
+    if(topic.status)
+        div(class="mb-4")
+            span Trạng thái: 
+            if(topic.status === "active")
+                span(class="badge badge-success") Hoạt động
+            else
+                span(class="badge badge-danger") Dừng hoạt động
+
+    if(topic.updatedAt)
+        div(class="mb-4") Ngày cập nhật: <b>
+            +formatDateTime(topic.updatedAt)
+            </b>
+    a(
+        class="btn btn-warning"
+        href=`${prefixAdmin}/topics/edit/${topic.id}`
+    ) Chỉnh sửa

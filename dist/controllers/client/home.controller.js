@@ -8,11 +8,28 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.index = void 0;
+const topic_model_1 = __importDefault(require("../../models/topic.model"));
+const song_model_1 = __importDefault(require("../../models/song.model"));
 const index = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const topics = yield topic_model_1.default.find({
+        status: "active",
+        deleted: false
+    }).sort({ createdAt: -1 })
+        .limit(3);
+    const songs = yield song_model_1.default.find({
+        status: "active",
+        deleted: false
+    }).sort({ createdAt: -1 })
+        .limit(4);
     res.render("client/pages/home/index", {
-        pageTitle: "Trang chủ",
+        pageTitle: "Chủ đề hot",
+        topics: topics,
+        songs: songs
     });
 });
 exports.index = index;

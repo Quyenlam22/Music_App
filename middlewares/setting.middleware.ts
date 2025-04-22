@@ -1,9 +1,10 @@
-import SettingGeneral from "../models/settingGeneral.model"
+import { Request, Response, NextFunction } from "express";
+import SettingGeneral from "../models/settingGeneral.model";
 
-export const settingGeneral = async (req, res, next) => {
-    const settingGeneral = await SettingGeneral.findOne({})
+export const settingGeneral = async (req: Request, res: Response, next: NextFunction) => {
+    const settingGeneral = await SettingGeneral.findOne({});
 
-    res.locals.settingGeneral = settingGeneral
+    res.locals.settingGeneral = settingGeneral;
 
-    next()
+    next();
 }

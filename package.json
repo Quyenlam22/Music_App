@@ -10,6 +10,11 @@
     "add-build": "git add dist",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "pre-commit": [
+    "ts.check",
+    "build",
+    "add-build"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
@@ -25,6 +30,7 @@
     "mongoose": "^8.10.0",
     "mongoose-slug-updater": "^3.3.0",
     "multer": "^1.4.5-lts.1",
+    "node-cron": "^3.0.3",
     "nodemailer": "^6.10.0",
     "pug": "^3.0.3",
     "streamifier": "^0.1.1",

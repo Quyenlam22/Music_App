@@ -8,11 +8,56 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.index = void 0;
+const song_model_1 = __importDefault(require("../../models/song.model"));
+const singer_model_1 = __importDefault(require("../../models/singer.model"));
+const time_log_model_1 = __importDefault(require("../../models/time-log.model"));
+const account_model_1 = __importDefault(require("../../models/account.model"));
+const chart_model_1 = __importDefault(require("../../models/chart.model"));
 const index = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let find = {
+        status: "active",
+        deleted: false
+    };
+    const records = yield song_model_1.default.find(find)
+        .sort({ listen: "desc" });
+    for (const song of records) {
+        const singer = yield singer_model_1.default.findOne({
+            _id: song.singerId,
+            deleted: false
+        }).select("fullName");
+        song["singer"] = singer;
+    }
+    const timeLogs = yield time_log_model_1.default.find().limit(5).sort({ createdAt: "desc" });
+    for (const timeLog of timeLogs) {
+        const account = yield account_model_1.default.findOne({
+            _id: timeLog.account_id
+        });
+        timeLog["accountFullName"] = account.fullName;
+    }
+    const charts = yield chart_model_1.default.find();
+    let totalListen = [];
+    let totalLike = [];
+    let totalAccess = [];
+    let timeCreated = [];
+    for (const chart of charts) {
+        totalListen.push(chart.totalListen);
+        totalLike.push(chart.totalLike);
+        totalAccess.push(chart.totalAccess);
+        timeCreated.push(chart.createdAt.toISOString());
+    }
     res.render("admin/pages/dashboard/index", {
-        pageTitle: "Trang tổng quan"
+        pageTitle: "Trang tổng quan",
+        records: records.slice(0, 5),
+        timeLogs: timeLogs,
+        totalListen: JSON.stringify(totalListen.slice(-6)),
+        totalLike: JSON.stringify(totalLike.slice(-6)),
+        totalAccess: JSON.stringify(totalAccess.slice(-6)),
+        timeCreated: timeCreated.slice(-6),
     });
 });
 exports.index = index;

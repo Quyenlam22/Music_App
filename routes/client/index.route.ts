@@ -7,11 +7,12 @@ import { homeRoutes } from "./home.route";
 import { settingGeneral } from "../../middlewares/setting.middleware";
 import { userRoutes } from "./user.route";
 import * as auth from "../../middlewares/auth.middleware";
-
+import { userAccess } from "../../middlewares/userAccess.middleware";
 
 const clientRoutes = (app: Express): void => {
     app.use(settingGeneral);
     app.use(auth.checkUserClient);
+    app.use(userAccess);
 
     app.use(`/topics`, topicRoutes);
     app.use(`/songs`, songRoutes);

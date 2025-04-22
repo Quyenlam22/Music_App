@@ -17,6 +17,7 @@ const topic_model_1 = __importDefault(require("../../models/topic.model"));
 const song_model_1 = __importDefault(require("../../models/song.model"));
 const singer_model_1 = __importDefault(require("../../models/singer.model"));
 const favorite_song_model_1 = __importDefault(require("../../models/favorite-song.model"));
+const user_model_1 = __importDefault(require("../../models/user.model"));
 const list = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const slugTopic = req.params.slugTopic;
     const topic = yield topic_model_1.default.findOne({
@@ -28,7 +29,7 @@ const list = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         topicId: topic.id,
         status: "active",
         deleted: false
-    }).select("avatar title slug singerId like");
+    }).select("avatar title slug singerId like createdAt");
     for (const song of songs) {
         const infoSinger = yield singer_model_1.default.findOne({
             _id: song.singerId,
@@ -59,10 +60,17 @@ const detail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         status: "active",
         deleted: false
     });
-    const favoriteSong = yield favorite_song_model_1.default.findOne({
-        songId: song.id
-    });
-    song["isFavoriteSong"] = favoriteSong ? true : false;
+    if (res.locals.userClient) {
+        const favoriteSong = yield favorite_song_model_1.default.findOne({
+            userId: res.locals.userClient.id,
+            songId: song.id
+        });
+        const user = yield user_model_1.default.findOne({
+            _id: { $in: song.like }
+        });
+        song["isLike"] = user ? true : false;
+        song["isFavoriteSong"] = favoriteSong ? true : false;
+    }
     res.render("client/pages/songs/detail", {
         pageTitle: "Chi tiết bài hát",
         song: song,
@@ -72,53 +80,88 @@ const detail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.detail = detail;
 const like = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const typeLike = req.params.typeLike;
-    const songId = req.params.songId;
-    const song = yield song_model_1.default.findOne({
-        _id: songId,
-        status: "active",
-        deleted: false
-    });
-    const newLike = typeLike == "like" ? song.like + 1 : song.like - 1;
-    yield song_model_1.default.updateOne({
-        _id: song.id
-    }, {
-        like: newLike
-    });
-    res.json({
-        code: 200,
-        message: "Success!",
-        like: newLike
-    });
+    if (req.cookies.tokenUser) {
+        const typeLike = req.params.typeLike;
+        const songId = req.params.songId;
+        const song = yield song_model_1.default.findOne({
+            _id: songId,
+            status: "active",
+            deleted: false
+        });
+        const user = yield user_model_1.default.findOne({
+            _id: { $in: song.like }
+        });
+        const newLike = typeLike == "like" ? song.like.length + 1 : song.like.length - 1;
+        if (!user) {
+            yield song_model_1.default.updateOne({
+                _id: song.id
+            }, {
+                $push: {
+                    like: res.locals.userClient.id
+                }
+            });
+        }
+        else {
+            yield song_model_1.default.updateOne({
+                _id: song.id
+            }, {
+                $pull: {
+                    like: res.locals.userClient.id
+                }
+            });
+        }
+        res.json({
+            code: 200,
+            message: "Success!",
+            like: newLike,
+        });
+    }
+    else {
+        req["flash"]("error", "Vui lòng đăng nhập để sử dụng tính năng!");
+        res.json({
+            code: 400,
+            message: "Error!"
+        });
+    }
 });
 exports.like = like;
 const favorite = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const typeFavorite = req.params.typeFavorite;
-    const songId = req.params.songId;
-    switch (typeFavorite) {
-        case "favorite":
-            const existFavoriteSong = yield favorite_song_model_1.default.findOne({
-                songId: songId
-            });
-            if (!existFavoriteSong) {
-                const record = new favorite_song_model_1.default({
+    if (req.cookies.tokenUser) {
+        const typeFavorite = req.params.typeFavorite;
+        const songId = req.params.songId;
+        switch (typeFavorite) {
+            case "favorite":
+                const existFavoriteSong = yield favorite_song_model_1.default.findOne({
                     songId: songId
                 });
-                yield record.save();
-            }
-            break;
-        case "unfavorite":
-            yield favorite_song_model_1.default.deleteOne({
-                songId: songId
-            });
-            break;
-        default:
-            break;
+                if (!existFavoriteSong) {
+                    const record = new favorite_song_model_1.default({
+                        userId: res.locals.userClient.id,
+                        songId: songId
+                    });
+                    yield record.save();
+                }
+                break;
+            case "unfavorite":
+                yield favorite_song_model_1.default.deleteOne({
+                    songId: songId
+                });
+                break;
+            default:
+                break;
+        }
+        res.json({
+            code: 200,
+            message: "Success!"
+        });
     }
-    res.json({
-        code: 200,
-        message: "Success!"
-    });
+    else {
+        req["flash"]("error", "Vui lòng đăng nhập để sử dụng tính năng!");
+        res.json({
+            code: 400,
+            message: "Error!"
+        });
+    }
 });
 exports.favorite = favorite;
 const listen = (req, res) => __awaiter(void 0, void 0, void 0, function* () {

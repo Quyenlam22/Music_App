@@ -27,7 +27,7 @@ export const userClient = async (req: Request, res: Response, next: NextFunction
 
 }
 
-export const checkUserClient = async (req, res, next) => {
+export const checkUserClient = async (req: Request, res: Response, next: NextFunction) => {
     if (req.cookies.tokenUser) {
         const user = await User.findOne({
             tokenUser: req.cookies.tokenUser

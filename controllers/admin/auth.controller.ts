@@ -3,13 +3,18 @@ import Account from "../../models/account.model";
 
 import md5 from "md5";
 import { systemConfig } from "../../config/config";
+import TimeLogin from "../../models/time-log.model";
 
 //[GET] /admin/auth/login
 export const login = async (req: Request, res: Response) => {
-
-    res.render("admin/pages/auth/login", {
-        pageTitle: "Đăng nhập tài khoản",
-    });
+    if (req.cookies.token) {
+        res.redirect(`${systemConfig.prefixAdmin}/dashboard`);
+    }
+    else {
+        res.render("admin/pages/auth/login", {
+            pageTitle: "Đăng nhập tài khoản",
+        });
+    }
 }
 
 
@@ -36,6 +41,13 @@ export const loginPost = async (req: Request, res: Response) => {
             res.redirect(`back`);
             return;
         }
+
+        const newLog = new TimeLogin({
+            account_id: account.id,
+            createdAt: new Date()
+        });
+        await newLog.save();
+
         res.cookie("token", account.token, {
             maxAge: 12 * 60 * 60 * 1000
         });
