@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import Account from "../../models/account.model";
+import Role from "../../models/role.model";
 
 import md5 from "md5";
 import * as generate from "../../helpers/generate";
@@ -42,6 +43,19 @@ export const index = async (req: Request, res: Response) => {
         .limit(objectPagination.limitItems)
         .skip(objectPagination.skip);
 
+    if(accounts) {
+        for (const account of accounts) {
+            const role = await Role.findOne({
+                _id: account.role_id,
+                deleted: false
+            });
+
+            if(role) {
+                account['role'] = role;
+            }
+        }
+    }
+
     res.render("admin/pages/accounts/index", {
         pageTitle: "Danh sách tài khoản admin",
         accounts: accounts,
@@ -53,8 +67,13 @@ export const index = async (req: Request, res: Response) => {
 
 //[GET] /admin/auth/create
 export const create = async (req: Request, res: Response) => {
+    const roles = await Role.find({
+        deleted: false
+    });
+
     res.render("admin/pages/accounts/create", {
         pageTitle: "Thêm mới tài khoản",
+        roles: roles
     });
 }
 
@@ -74,7 +93,7 @@ export const createPost = async (req: Request, res: Response) => {
                 phone: req.body.phone,
                 token: generate.generateRandomString(20),
                 avatar: req.body.avatar,
-                // role_id: req.body.,
+                role_id: req.body.role_id,
                 status: req.body.status
             };
 
@@ -101,9 +120,14 @@ export const edit = async (req: Request, res: Response) => {
             deleted: false
         });
 
+        const roles = await Role.find({
+            deleted: false
+        });
+
         res.render("admin/pages/accounts/edit", {
             pageTitle: "Chỉnh sửa tài khoản",
-            account: account
+            account: account,
+            roles: roles
         });
     } catch (error) {
         req["flash"]("error", "Có lỗi trong quá trình hiển thị thông tin tài khoản!");
@@ -119,7 +143,7 @@ export const editPatch = async (req: Request, res: Response) => {
             email: req.body.email,
             phone: req.body.phone,
             avatar: req.body.avatar,
-            // role_id: req.body.,
+            role_id: req.body.role_id,
             status: req.body.status
         }
 

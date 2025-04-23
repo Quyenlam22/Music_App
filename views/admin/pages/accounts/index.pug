@@ -39,7 +39,7 @@ block main
                             th STT 
                             th Avatar
                             th Họ tên
-                            //- th Phân quyền
+                            th Phân quyền
                             th Email
                             th Trạng thái
                             th Hành động              
@@ -61,7 +61,10 @@ block main
                                         height="auto"
                                     )
                                 td #{item.fullName}
-                                //- td #{item.role.title}
+                                if(item.role_id != "")
+                                    td #{item.role.title}
+                                else 
+                                    td
                                 td #{item.email}
                                 td 
                                     if(item.status == "active")
@@ -107,4 +110,3 @@ block main
                 h3.text-center.my-2 Không tìm thấy kết quả phù hợp      
 
     +pagination(pagination)
-    //- +pagination(pagination)

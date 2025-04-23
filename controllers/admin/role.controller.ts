@@ -1,9 +1,11 @@
 import { Request, Response } from "express";
 
 import searchHelper from "../../helpers/search";
+import paginationHelper from "../../helpers/pagination";
 
 import { systemConfig } from "../../config/config";
 import Role from "../../models/role.model";
+import pagination from "../../helpers/pagination";
 
 //[GET] /admin/roles/
 export const index = async (req: Request, res: Response) => {
@@ -17,12 +19,26 @@ export const index = async (req: Request, res: Response) => {
         find['slug'] = objectSearch['regex'];
     }
 
-    const records = await Role.find(find);
+    // PAGINATION
+    const countRecords = await Role.countDocuments(find);
+
+    let objectPagination = paginationHelper({
+        currentPage: 1,
+        limitItems: 3
+    },
+        req.query,
+        countRecords
+    )
+
+    const records = await Role.find(find)
+        .limit(objectPagination.limitItems)
+        .skip(objectPagination.skip);
 
     res.render("admin/pages/roles/index", {
         pageTitle: "Nhóm quyền",
         records: records,
-        keyword: objectSearch.keyword
+        keyword: objectSearch.keyword,
+        pagination: objectPagination
     });
 }
 
