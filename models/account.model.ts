@@ -1,4 +1,7 @@
 import mongoose from "mongoose";
+import slug from "mongoose-slug-updater";
+
+mongoose.plugin(slug);
 
 const accountSchema = new mongoose.Schema({
     fullName: String,
@@ -9,6 +12,11 @@ const accountSchema = new mongoose.Schema({
     avatar: String,
     role_id: String,
     status: String,
+    slug: {
+        type: String,
+        slug: "fullName",
+        unique: true
+    },
     deleted: {
         type: Boolean,
         default: false
