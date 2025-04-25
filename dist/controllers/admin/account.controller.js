@@ -47,6 +47,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.changeMulti = exports.detail = exports.deletedAccount = exports.editPatch = exports.edit = exports.createPost = exports.create = exports.index = void 0;
 const account_model_1 = __importDefault(require("../../models/account.model"));
+const role_model_1 = __importDefault(require("../../models/role.model"));
 const md5_1 = __importDefault(require("md5"));
 const generate = __importStar(require("../../helpers/generate"));
 const config_1 = require("../../config/config");
@@ -72,6 +73,17 @@ const index = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const accounts = yield account_model_1.default.find(find)
         .limit(objectPagination.limitItems)
         .skip(objectPagination.skip);
+    if (accounts) {
+        for (const account of accounts) {
+            const role = yield role_model_1.default.findOne({
+                _id: account.role_id,
+                deleted: false
+            });
+            if (role) {
+                account['role'] = role;
+            }
+        }
+    }
     res.render("admin/pages/accounts/index", {
         pageTitle: "Danh sách tài khoản admin",
         accounts: accounts,
@@ -82,40 +94,51 @@ const index = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.index = index;
 const create = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const roles = yield role_model_1.default.find({
+        deleted: false
+    });
     res.render("admin/pages/accounts/create", {
         pageTitle: "Thêm mới tài khoản",
+        roles: roles
     });
 });
 exports.create = create;
 const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const existAccount = yield account_model_1.default.findOne({
-            email: req.body.email,
-            deleted: false
-        });
-        if (!existAccount) {
-            const dataAccount = {
-                fullName: req.body.fullName,
+    if (res.locals.role.permissions.includes('accounts_create')) {
+        try {
+            const existAccount = yield account_model_1.default.findOne({
                 email: req.body.email,
-                password: (0, md5_1.default)(req.body.password),
-                phone: req.body.phone,
-                token: generate.generateRandomString(20),
-                avatar: req.body.avatar,
-                status: req.body.status
-            };
-            const account = new account_model_1.default(dataAccount);
-            yield account.save();
-            req["flash"]("success", "Thêm tài khoản thành công!");
-            res.redirect(`${config_1.systemConfig.prefixAdmin}/accounts`);
+                deleted: false
+            });
+            if (!existAccount) {
+                const dataAccount = {
+                    fullName: req.body.fullName,
+                    email: req.body.email,
+                    password: (0, md5_1.default)(req.body.password),
+                    phone: req.body.phone,
+                    token: generate.generateRandomString(20),
+                    avatar: req.body.avatar,
+                    role_id: req.body.role_id,
+                    status: req.body.status
+                };
+                const account = new account_model_1.default(dataAccount);
+                yield account.save();
+                req["flash"]("success", "Thêm tài khoản thành công!");
+                res.redirect(`${config_1.systemConfig.prefixAdmin}/accounts`);
+            }
+            else {
+                req["flash"]("error", `Email ${req.body.email} đã tồn tại!`);
+                res.redirect(`back`);
+            }
         }
-        else {
-            req["flash"]("error", `Email ${req.body.email} đã tồn tại!`);
+        catch (error) {
+            req["flash"]("error", "Có lỗi trong quá trình thêm tài khoản!");
             res.redirect(`back`);
         }
     }
-    catch (error) {
-        req["flash"]("error", "Có lỗi trong quá trình thêm tài khoản!");
-        res.redirect(`back`);
+    else {
+        req["flash"]("error", "Bạn không có quyền thêm tài khoản!");
+        res.redirect(`${config_1.systemConfig.prefixAdmin}/accounts`);
     }
 });
 exports.createPost = createPost;
@@ -125,9 +148,13 @@ const edit = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             _id: req.params.id,
             deleted: false
         });
+        const roles = yield role_model_1.default.find({
+            deleted: false
+        });
         res.render("admin/pages/accounts/edit", {
             pageTitle: "Chỉnh sửa tài khoản",
-            account: account
+            account: account,
+            roles: roles
         });
     }
     catch (error) {
@@ -137,54 +164,67 @@ const edit = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.edit = edit;
 const editPatch = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const dataAccount = {
-            fullName: req.body.fullName,
-            email: req.body.email,
-            phone: req.body.phone,
-            avatar: req.body.avatar,
-            status: req.body.status
-        };
-        const existAccount = yield account_model_1.default.findOne({
-            _id: {
-                $ne: req.params.id
-            },
-            email: req.body.email,
-            deleted: false
-        });
-        if (!existAccount) {
-            if (req.body.password) {
-                dataAccount["password"] = (0, md5_1.default)(req.body.password);
+    if (res.locals.role.permissions.includes('accounts_edit')) {
+        try {
+            const dataAccount = {
+                fullName: req.body.fullName,
+                email: req.body.email,
+                phone: req.body.phone,
+                avatar: req.body.avatar,
+                role_id: req.body.role_id,
+                status: req.body.status
+            };
+            const existAccount = yield account_model_1.default.findOne({
+                _id: {
+                    $ne: req.params.id
+                },
+                email: req.body.email,
+                deleted: false
+            });
+            if (!existAccount) {
+                if (req.body.password) {
+                    dataAccount["password"] = (0, md5_1.default)(req.body.password);
+                }
+                yield account_model_1.default.updateOne({
+                    _id: req.params.id
+                }, dataAccount);
+                req["flash"]("success", "Chỉnh sửa tài khoản thành công!");
             }
-            yield account_model_1.default.updateOne({
-                _id: req.params.id
-            }, dataAccount);
-            req["flash"]("success", "Chỉnh sửa tài khoản thành công!");
+            else {
+                req["flash"]("error", `Email ${req.body.email} đã tồn tại!`);
+            }
         }
-        else {
-            req["flash"]("error", `Email ${req.body.email} đã tồn tại!`);
+        catch (error) {
+            req["flash"]("error", "Có lỗi trong quá trình chỉnh sửa tài khoản!");
         }
+        res.redirect(`back`);
     }
-    catch (error) {
-        req["flash"]("error", "Có lỗi trong quá trình chỉnh sửa tài khoản!");
+    else {
+        req["flash"]("error", "Bạn không có quyền chỉnh sửa thông tin tài khoản!");
+        res.redirect(`${config_1.systemConfig.prefixAdmin}/accounts`);
     }
-    res.redirect(`back`);
 });
 exports.editPatch = editPatch;
 const deletedAccount = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        yield account_model_1.default.updateOne({
-            _id: req.params.id,
-        }, {
-            deleted: true,
-            deletedAt: Date.now()
-        });
-        req["flash"]("success", "Xóa tài khoản thành công!");
+    if (res.locals.role.permissions.includes('accounts_delete')) {
+        try {
+            yield account_model_1.default.updateOne({
+                _id: req.params.id,
+            }, {
+                deleted: true,
+                deletedAt: Date.now()
+            });
+            req["flash"]("success", "Xóa tài khoản thành công!");
+        }
+        catch (error) {
+            req["flash"]("error", "Có lỗi trong quá trình xóa tài khoản!");
+        }
+        res.redirect(`back`);
     }
-    catch (error) {
-        req["flash"]("error", "Có lỗi trong quá trình xóa tài khoản!");
+    else {
+        req["flash"]("error", "Bạn không có quyền xóa tài khoản!");
+        res.redirect(`${config_1.systemConfig.prefixAdmin}/accounts`);
     }
-    res.redirect(`back`);
 });
 exports.deletedAccount = deletedAccount;
 const detail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -205,58 +245,64 @@ const detail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.detail = detail;
 const changeMulti = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const type = req.body.type;
-    const ids = req.body.ids.split(", ");
-    switch (type) {
-        case "active":
-            try {
-                yield account_model_1.default.updateMany({
-                    _id: {
-                        $in: ids
-                    }
-                }, {
-                    status: "active"
-                });
-                req["flash"]("success", `Cập nhật trạng thái thành công!`);
-            }
-            catch (error) {
-                req["flash"]("error", `Cập nhật trạng thái cho ${ids.length} ca sĩ thất bại!`);
-            }
-            break;
-        case "inactive":
-            try {
-                yield account_model_1.default.updateMany({
-                    _id: {
-                        $in: ids
-                    }
-                }, {
-                    status: "inactive"
-                });
-                req["flash"]("success", `Cập nhật trạng thái thành công!`);
-            }
-            catch (error) {
-                req["flash"]("error", `Cập nhật trạng thái cho ${ids.length} ca sĩ thất bại!`);
-            }
-            break;
-        case "delete-all":
-            try {
-                yield account_model_1.default.updateMany({
-                    _id: {
-                        $in: ids
-                    }
-                }, {
-                    deleted: true,
-                    deletedAt: new Date()
-                });
-                req["flash"]("success", `Xóa ca sĩ thành công!`);
-            }
-            catch (error) {
-                req["flash"]("error", `Xóa ${ids.length} ca sĩ thất bại!`);
-            }
-            break;
-        default:
-            break;
+    if (res.locals.role.permissions.includes('accounts_edit')) {
+        const type = req.body.type;
+        const ids = req.body.ids.split(", ");
+        switch (type) {
+            case "active":
+                try {
+                    yield account_model_1.default.updateMany({
+                        _id: {
+                            $in: ids
+                        }
+                    }, {
+                        status: "active"
+                    });
+                    req["flash"]("success", `Cập nhật trạng thái thành công!`);
+                }
+                catch (error) {
+                    req["flash"]("error", `Cập nhật trạng thái cho ${ids.length} ca sĩ thất bại!`);
+                }
+                break;
+            case "inactive":
+                try {
+                    yield account_model_1.default.updateMany({
+                        _id: {
+                            $in: ids
+                        }
+                    }, {
+                        status: "inactive"
+                    });
+                    req["flash"]("success", `Cập nhật trạng thái thành công!`);
+                }
+                catch (error) {
+                    req["flash"]("error", `Cập nhật trạng thái cho ${ids.length} ca sĩ thất bại!`);
+                }
+                break;
+            case "delete-all":
+                try {
+                    yield account_model_1.default.updateMany({
+                        _id: {
+                            $in: ids
+                        }
+                    }, {
+                        deleted: true,
+                        deletedAt: new Date()
+                    });
+                    req["flash"]("success", `Xóa ca sĩ thành công!`);
+                }
+                catch (error) {
+                    req["flash"]("error", `Xóa ${ids.length} ca sĩ thất bại!`);
+                }
+                break;
+            default:
+                break;
+        }
+        res.redirect("back");
     }
-    res.redirect("back");
+    else {
+        req["flash"]("error", "Bạn không có quyền chỉnh sửa thông tin tài khoản!");
+        res.redirect(`${config_1.systemConfig.prefixAdmin}/accounts`);
+    }
 });
 exports.changeMulti = changeMulti;

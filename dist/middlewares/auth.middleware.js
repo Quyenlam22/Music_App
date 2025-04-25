@@ -16,6 +16,7 @@ exports.checkAdmin = exports.checkUserClient = exports.userClient = void 0;
 const user_model_1 = __importDefault(require("../models/user.model"));
 const config_1 = require("../config/config");
 const account_model_1 = __importDefault(require("../models/account.model"));
+const role_model_1 = __importDefault(require("../models/role.model"));
 const userClient = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     if (!req.cookies.tokenUser) {
         req["flash"]("error", "Vui lòng đăng nhập!");
@@ -64,7 +65,12 @@ const checkAdmin = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
             res.redirect(`${config_1.systemConfig.prefixAdmin}/auth/login`);
         }
         else {
+            const role = yield role_model_1.default.findOne({
+                _id: account.role_id,
+                deleted: false
+            });
             res.locals.userAdmin = account;
+            res.locals.role = role;
             next();
         }
     }

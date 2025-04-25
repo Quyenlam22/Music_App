@@ -64,15 +64,15 @@ block main
                 class="image-preview"
                 upload-image-preview
             )
-        //- div(class="form-group")
-        //-     label(for="role_id") Phân quyền 
-        //-     select(name="role_id" id="role_id" class="form-control")
-        //-         option(value="" disable) --Chọn--
-        //-         each item in roles
-        //-             option(
-        //-                 value=item.id
-        //-                 selected=(item.id == account.role_id ? true : flase)
-        //-                 ) #{item.title}
+        div(class="form-group")
+            label(for="role_id") Phân quyền 
+            select(name="role_id" id="role_id" class="form-control")
+                option(value="" disabled selected) --Chọn--
+                each item in roles
+                    option(
+                        value=item.id
+                        selected=(item.id == account.role_id ? true : flase)
+                        ) #{item.title}
         div(class="form-group form-check form-check-inline")
             input(
                 type="radio"
@@ -97,4 +97,4 @@ block main
             button(
                 type="submit"
                 class="btn btn-primary"
-            ) Cập nhật
+            ) Cập nhật    

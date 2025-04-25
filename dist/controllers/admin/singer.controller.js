@@ -54,20 +54,26 @@ const create = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.create = create;
 const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const dataSinger = {
-            fullName: req.body.fullName,
-            avatar: req.body.avatar,
-            status: req.body.status
-        };
-        const singer = new singer_model_1.default(dataSinger);
-        yield singer.save();
-        req["flash"]("success", "Thêm ca sĩ thành công!");
-        res.redirect(`${config_1.systemConfig.prefixAdmin}/singers`);
+    if (res.locals.role.permissions.includes('singers_create')) {
+        try {
+            const dataSinger = {
+                fullName: req.body.fullName,
+                avatar: req.body.avatar,
+                status: req.body.status
+            };
+            const singer = new singer_model_1.default(dataSinger);
+            yield singer.save();
+            req["flash"]("success", "Thêm ca sĩ thành công!");
+            res.redirect(`${config_1.systemConfig.prefixAdmin}/singers`);
+        }
+        catch (ex) {
+            req["flash"]("error", "Có lỗi trong quá trình thêm ca sĩ!");
+            res.redirect("back");
+        }
     }
-    catch (ex) {
-        req["flash"]("error", "Có lỗi trong quá trình thêm ca sĩ!");
-        res.redirect("back");
+    else {
+        req["flash"]("error", "Bạn không có quyền chỉnh sửa thông tin ca sĩ!");
+        res.redirect(`${config_1.systemConfig.prefixAdmin}/singers`);
     }
 });
 exports.createPost = createPost;
@@ -89,37 +95,49 @@ const edit = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.edit = edit;
 const editPatch = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const dataSinger = {
-            fullName: req.body.fullName,
-            avatar: req.body.avatar,
-            status: req.body.status
-        };
-        yield singer_model_1.default.updateOne({
-            _id: req.params.id
-        }, dataSinger);
-        req["flash"]("success", "Cập nhật thông tin ca sĩ thành công!");
+    if (res.locals.role.permissions.includes('singers_edit')) {
+        try {
+            const dataSinger = {
+                fullName: req.body.fullName,
+                avatar: req.body.avatar,
+                status: req.body.status
+            };
+            yield singer_model_1.default.updateOne({
+                _id: req.params.id
+            }, dataSinger);
+            req["flash"]("success", "Cập nhật thông tin ca sĩ thành công!");
+        }
+        catch (ex) {
+            req["flash"]("error", "Có lỗi trong quá trình cập nhật thông tin ca sĩ!");
+        }
+        res.redirect("back");
     }
-    catch (ex) {
-        req["flash"]("error", "Có lỗi trong quá trình cập nhật thông tin ca sĩ!");
+    else {
+        req["flash"]("error", "Bạn không có quyền chỉnh sửa thông tin ca sĩ!");
+        res.redirect(`${config_1.systemConfig.prefixAdmin}/singers`);
     }
-    res.redirect("back");
 });
 exports.editPatch = editPatch;
 const deleteSinger = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        req["flash"]("success", "Xóa thông tin ca sĩ thành công!");
-        yield singer_model_1.default.updateOne({
-            _id: req.params.idSinger
-        }, {
-            deleted: true,
-            deletedAt: Date.now()
-        });
+    if (res.locals.role.permissions.includes('singers_delete')) {
+        try {
+            req["flash"]("success", "Xóa thông tin ca sĩ thành công!");
+            yield singer_model_1.default.updateOne({
+                _id: req.params.idSinger
+            }, {
+                deleted: true,
+                deletedAt: Date.now()
+            });
+        }
+        catch (ex) {
+            req["flash"]("error", "Có lỗi trong quá trình xóa thông tin ca sĩ!");
+        }
+        res.redirect("back");
     }
-    catch (ex) {
-        req["flash"]("error", "Có lỗi trong quá trình xóa thông tin ca sĩ!");
+    else {
+        req["flash"]("error", "Bạn không có quyền chỉnh sửa thông tin ca sĩ!");
+        res.redirect(`${config_1.systemConfig.prefixAdmin}/singers`);
     }
-    res.redirect("back");
 });
 exports.deleteSinger = deleteSinger;
 const detail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -140,58 +158,64 @@ const detail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.detail = detail;
 const changeMulti = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const type = req.body.type;
-    const ids = req.body.ids.split(", ");
-    switch (type) {
-        case "active":
-            try {
-                yield singer_model_1.default.updateMany({
-                    _id: {
-                        $in: ids
-                    }
-                }, {
-                    status: "active"
-                });
-                req["flash"]("success", `Cập nhật trạng thái thành công!`);
-            }
-            catch (error) {
-                req["flash"]("error", `Cập nhật trạng thái cho ${ids.length} ca sĩ thất bại!`);
-            }
-            break;
-        case "inactive":
-            try {
-                yield singer_model_1.default.updateMany({
-                    _id: {
-                        $in: ids
-                    }
-                }, {
-                    status: "inactive"
-                });
-                req["flash"]("success", `Cập nhật trạng thái thành công!`);
-            }
-            catch (error) {
-                req["flash"]("error", `Cập nhật trạng thái cho ${ids.length} ca sĩ thất bại!`);
-            }
-            break;
-        case "delete-all":
-            try {
-                yield singer_model_1.default.updateMany({
-                    _id: {
-                        $in: ids
-                    }
-                }, {
-                    deleted: true,
-                    deletedAt: new Date()
-                });
-                req["flash"]("success", `Xóa ca sĩ thành công!`);
-            }
-            catch (error) {
-                req["flash"]("error", `Xóa ${ids.length} ca sĩ thất bại!`);
-            }
-            break;
-        default:
-            break;
+    if (res.locals.role.permissions.includes('singers_edit')) {
+        const type = req.body.type;
+        const ids = req.body.ids.split(", ");
+        switch (type) {
+            case "active":
+                try {
+                    yield singer_model_1.default.updateMany({
+                        _id: {
+                            $in: ids
+                        }
+                    }, {
+                        status: "active"
+                    });
+                    req["flash"]("success", `Cập nhật trạng thái thành công!`);
+                }
+                catch (error) {
+                    req["flash"]("error", `Cập nhật trạng thái cho ${ids.length} ca sĩ thất bại!`);
+                }
+                break;
+            case "inactive":
+                try {
+                    yield singer_model_1.default.updateMany({
+                        _id: {
+                            $in: ids
+                        }
+                    }, {
+                        status: "inactive"
+                    });
+                    req["flash"]("success", `Cập nhật trạng thái thành công!`);
+                }
+                catch (error) {
+                    req["flash"]("error", `Cập nhật trạng thái cho ${ids.length} ca sĩ thất bại!`);
+                }
+                break;
+            case "delete-all":
+                try {
+                    yield singer_model_1.default.updateMany({
+                        _id: {
+                            $in: ids
+                        }
+                    }, {
+                        deleted: true,
+                        deletedAt: new Date()
+                    });
+                    req["flash"]("success", `Xóa ca sĩ thành công!`);
+                }
+                catch (error) {
+                    req["flash"]("error", `Xóa ${ids.length} ca sĩ thất bại!`);
+                }
+                break;
+            default:
+                break;
+        }
+        res.redirect("back");
     }
-    res.redirect("back");
+    else {
+        req["flash"]("error", "Bạn không có quyền chỉnh sửa thông tin ca sĩ!");
+        res.redirect(`${config_1.systemConfig.prefixAdmin}/singers`);
+    }
 });
 exports.changeMulti = changeMulti;

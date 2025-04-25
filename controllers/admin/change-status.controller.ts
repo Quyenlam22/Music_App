@@ -10,46 +10,91 @@ export const index = async (req: Request, res: Response) => {
     try {
         const type = req.params.type;
         if (type == "topics") {
-            await Topic.updateOne({
-                _id: req.params.id
-            }, {
-                status: req.params.status
-            })
+            if (res.locals.role.permissions.includes('topics_edit')) {
+                await Topic.updateOne({
+                    _id: req.params.id
+                }, {
+                    status: req.params.status
+                })
+            }
+            else {
+                res.json({
+                    code: 400,
+                    message: "Change status error!",
+                });
+                return;
+            }
         }
         if (type == "singers") {
-            await Singer.updateOne({
-                _id: req.params.id
-            }, {
-                status: req.params.status
-            })
+            if (res.locals.role.permissions.includes('singers_edit')) {
+                await Singer.updateOne({
+                    _id: req.params.id
+                }, {
+                    status: req.params.status
+                })
+            }
+            else {
+                res.json({
+                    code: 400,
+                    message: "Change status error!",
+                });
+                return;
+            }
         }
         if (type == "songs") {
-            await Song.updateOne({
-                _id: req.params.id
-            }, {
-                status: req.params.status
-            })
+            if (res.locals.role.permissions.includes('songs_edit')) {
+                await Song.updateOne({
+                    _id: req.params.id
+                }, {
+                    status: req.params.status
+                })
+            }
+            else {
+                res.json({
+                    code: 400,
+                    message: "Change status error!",
+                });
+                return;
+            }
         }
         if (type == "users") {
-            await User.updateOne({
-                _id: req.params.id
-            }, {
-                status: req.params.status
-            })
+            if (res.locals.role.permissions.includes('users_edit')) {
+                await User.updateOne({
+                    _id: req.params.id
+                }, {
+                    status: req.params.status
+                })
+            }
+            else {
+                res.json({
+                    code: 400,
+                    message: "Change status error!",
+                });
+                return;
+            }
         }
         if (type == "accounts") {
-            await Account.updateOne({
-                _id: req.params.id
-            }, {
-                status: req.params.status
-            })
+            if (res.locals.role.permissions.includes('accounts_edit')) {
+                await Account.updateOne({
+                    _id: req.params.id
+                }, {
+                    status: req.params.status
+                })
+            }
+            else {
+                res.json({
+                    code: 400,
+                    message: "Change status error!",
+                });
+                return;
+            }
         }
 
         res.json({
             code: 200,
             message: "Change status success!",
         });
-    } catch(ex) {
+    } catch (ex) {
         res.json({
             code: 400,
             message: "Change status error!",

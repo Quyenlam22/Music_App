@@ -6,18 +6,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
 const mongoose_slug_updater_1 = __importDefault(require("mongoose-slug-updater"));
 mongoose_1.default.plugin(mongoose_slug_updater_1.default);
-const accountSchema = new mongoose_1.default.Schema({
-    fullName: String,
-    email: String,
-    password: String,
-    phone: String,
-    token: String,
-    avatar: String,
-    role_id: String,
-    status: String,
+const roleSchema = new mongoose_1.default.Schema({
+    title: String,
+    description: String,
+    permissions: {
+        type: Array,
+        default: []
+    },
     slug: {
         type: String,
-        slug: "fullName",
+        slug: "title",
         unique: true
     },
     deleted: {
@@ -28,5 +26,5 @@ const accountSchema = new mongoose_1.default.Schema({
 }, {
     timestamps: true
 });
-const Account = mongoose_1.default.model('Account', accountSchema, "accounts");
-exports.default = Account;
+const Role = mongoose_1.default.model("Role", roleSchema, "roles");
+exports.default = Role;

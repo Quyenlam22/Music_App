@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import User from "../models/user.model";
 import { systemConfig } from "../config/config";
 import Account from "../models/account.model";
+import Role from "../models/role.model";
 
 export const userClient = async (req: Request, res: Response, next: NextFunction) => {
     // if (req.path === "/user/login") {
@@ -57,7 +58,13 @@ export const checkAdmin = async (req: Request, res: Response, next: NextFunction
             res.redirect(`${systemConfig.prefixAdmin}/auth/login`);
         }
         else {
+            const role = await Role.findOne({
+                _id: account.role_id,
+                deleted: false
+            });
+
             res.locals.userAdmin = account;
+            res.locals.role = role;
             next();
         }
     }

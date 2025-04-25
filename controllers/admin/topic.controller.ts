@@ -57,22 +57,28 @@ export const create = async (req: Request, res: Response) => {
 
 //[POST] /admin/topics/create
 export const createPost = async (req: Request, res: Response) => {
-    try {
-        const dataTopic = {
-            title: req.body.title,
-            avatar: req.body.avatar,
-            description: req.body.description,
-            status: req.body.status
-        };
+    if (res.locals.role.permissions.includes('topics_create')) {
+        try {
+            const dataTopic = {
+                title: req.body.title,
+                avatar: req.body.avatar,
+                description: req.body.description,
+                status: req.body.status
+            };
 
-        const topic = new Topic(dataTopic);
-        await topic.save();
-        req["flash"]("success", "Thêm chủ đề thành công!");
+            const topic = new Topic(dataTopic);
+            await topic.save();
+            req["flash"]("success", "Thêm chủ đề thành công!");
 
+            res.redirect(`${systemConfig.prefixAdmin}/topics`);
+        } catch (ex) {
+            req["flash"]("error", "Có lỗi trong quá trình thêm chủ đề!");
+            res.redirect("back");
+        }
+    }
+    else {
+        req["flash"]("error", "Bạn không có quyền thêm chủ đề!");
         res.redirect(`${systemConfig.prefixAdmin}/topics`);
-    } catch (ex) {
-        req["flash"]("error", "Có lỗi trong quá trình thêm chủ đề!");
-        res.redirect("back");
     }
 }
 
@@ -96,44 +102,56 @@ export const edit = async (req: Request, res: Response) => {
 
 //[PATCH] /admin/topics/edit/:id
 export const editPatch = async (req: Request, res: Response) => {
-    try {
-        const dataTopic = {
-            title: req.body.title,
-            avatar: req.body.avatar,
-            description: req.body.description,
-            status: req.body.status
-        };
+    if (res.locals.role.permissions.includes('topics_edit')) {
+        try {
+            const dataTopic = {
+                title: req.body.title,
+                avatar: req.body.avatar,
+                description: req.body.description,
+                status: req.body.status
+            };
 
-        await Topic.updateOne({
-            _id: req.params.id
-        }, dataTopic);
-        req["flash"]("success", "Cập nhật chủ đề thành công!");
+            await Topic.updateOne({
+                _id: req.params.id
+            }, dataTopic);
+            req["flash"]("success", "Cập nhật chủ đề thành công!");
 
-    } catch (ex) {
-        req["flash"]("error", "Có lỗi trong quá trình cập nhật chủ đề!");
+        } catch (ex) {
+            req["flash"]("error", "Có lỗi trong quá trình cập nhật chủ đề!");
+        }
+        res.redirect("back");
     }
-    res.redirect("back");
+    else {
+        req["flash"]("error", "Bạn không có quyền chỉnh sửa thông tin chủ đề!");
+        res.redirect(`${systemConfig.prefixAdmin}/topics`);
+    }
 }
 
 //[PATCH] /admin/topics/delete/:idTopic
 export const deleteTopic = async (req: Request, res: Response) => {
-    try {
-        await Topic.updateOne({
-            _id: req.params.idTopic
-        }, {
-            deleted: true,
-            deletedAt: Date.now()
-        });
+    if (res.locals.role.permissions.includes('topics_delete')) {
+        try {
+            await Topic.updateOne({
+                _id: req.params.idTopic
+            }, {
+                deleted: true,
+                deletedAt: Date.now()
+            });
 
-        // res.json({
-        //     code: 200,
-        //     message: "Deleted success!"
-        // });
-        req["flash"]("success", "Xóa chủ đề thành công!");
-    } catch (ex) {
-        req["flash"]("error", "Có lỗi trong quá trình xóa chủ đề!");
+            // res.json({
+            //     code: 200,
+            //     message: "Deleted success!"
+            // });
+            req["flash"]("success", "Xóa chủ đề thành công!");
+        } catch (ex) {
+            req["flash"]("error", "Có lỗi trong quá trình xóa chủ đề!");
+        }
+        res.redirect("back");
     }
-    res.redirect("back");
+    else {
+        req["flash"]("error", "Bạn không có quyền xóa chủ đề!");
+        res.redirect(`${systemConfig.prefixAdmin}/topics`);
+    }
 }
 
 //[GET] /admin/topics/detail/:id
@@ -156,6 +174,7 @@ export const detail = async (req: Request, res: Response) => {
 
 // [PATCH] /admin/topics/change-multi
 export const changeMulti = async (req: Request, res: Response) => {
+    if (res.locals.role.permissions.includes('topics_edit')) {
         const type = req.body.type;
         const ids = req.body.ids.split(", ");
 
@@ -211,4 +230,9 @@ export const changeMulti = async (req: Request, res: Response) => {
                 break;
         }
         res.redirect("back");
+    }
+    else {
+        req["flash"]("error", "Bạn không có quyền chỉnh sửa thông tin chủ đề!");
+        res.redirect(`${systemConfig.prefixAdmin}/topics`);
+    }
 }

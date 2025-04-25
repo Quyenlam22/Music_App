@@ -43,14 +43,14 @@ export const index = async (req: Request, res: Response) => {
         .limit(objectPagination.limitItems)
         .skip(objectPagination.skip);
 
-    if(accounts) {
+    if (accounts) {
         for (const account of accounts) {
             const role = await Role.findOne({
                 _id: account.role_id,
                 deleted: false
             });
 
-            if(role) {
+            if (role) {
                 account['role'] = role;
             }
         }
@@ -79,36 +79,42 @@ export const create = async (req: Request, res: Response) => {
 
 //[POST] /admin/auth/create
 export const createPost = async (req: Request, res: Response) => {
-    try {
-        const existAccount = await Account.findOne({
-            email: req.body.email,
-            deleted: false
-        });
-
-        if (!existAccount) {
-            const dataAccount = {
-                fullName: req.body.fullName,
+    if (res.locals.role.permissions.includes('accounts_create')) {
+        try {
+            const existAccount = await Account.findOne({
                 email: req.body.email,
-                password: md5(req.body.password),
-                phone: req.body.phone,
-                token: generate.generateRandomString(20),
-                avatar: req.body.avatar,
-                role_id: req.body.role_id,
-                status: req.body.status
-            };
+                deleted: false
+            });
 
-            const account = new Account(dataAccount);
-            await account.save();
+            if (!existAccount) {
+                const dataAccount = {
+                    fullName: req.body.fullName,
+                    email: req.body.email,
+                    password: md5(req.body.password),
+                    phone: req.body.phone,
+                    token: generate.generateRandomString(20),
+                    avatar: req.body.avatar,
+                    role_id: req.body.role_id,
+                    status: req.body.status
+                };
 
-            req["flash"]("success", "Thêm tài khoản thành công!");
-            res.redirect(`${systemConfig.prefixAdmin}/accounts`);
-        } else {
-            req["flash"]("error", `Email ${req.body.email} đã tồn tại!`);
+                const account = new Account(dataAccount);
+                await account.save();
+
+                req["flash"]("success", "Thêm tài khoản thành công!");
+                res.redirect(`${systemConfig.prefixAdmin}/accounts`);
+            } else {
+                req["flash"]("error", `Email ${req.body.email} đã tồn tại!`);
+                res.redirect(`back`);
+            }
+        } catch (error) {
+            req["flash"]("error", "Có lỗi trong quá trình thêm tài khoản!");
             res.redirect(`back`);
         }
-    } catch (error) {
-        req["flash"]("error", "Có lỗi trong quá trình thêm tài khoản!");
-        res.redirect(`back`);
+    }
+    else {
+        req["flash"]("error", "Bạn không có quyền thêm tài khoản!");
+        res.redirect(`${systemConfig.prefixAdmin}/accounts`);
     }
 }
 
@@ -137,58 +143,70 @@ export const edit = async (req: Request, res: Response) => {
 
 //[PATCH] /admin/auth/edit/:id
 export const editPatch = async (req: Request, res: Response) => {
-    try {
-        const dataAccount = {
-            fullName: req.body.fullName,
-            email: req.body.email,
-            phone: req.body.phone,
-            avatar: req.body.avatar,
-            role_id: req.body.role_id,
-            status: req.body.status
-        }
-
-        const existAccount = await Account.findOne({
-            _id: {
-                $ne: req.params.id
-            },
-            email: req.body.email,
-            deleted: false
-        });
-
-        if (!existAccount) {
-            if (req.body.password) {
-                dataAccount["password"] = md5(req.body.password);
+    if (res.locals.role.permissions.includes('accounts_edit')) {
+        try {
+            const dataAccount = {
+                fullName: req.body.fullName,
+                email: req.body.email,
+                phone: req.body.phone,
+                avatar: req.body.avatar,
+                role_id: req.body.role_id,
+                status: req.body.status
             }
 
-            await Account.updateOne({
-                _id: req.params.id
-            }, dataAccount);
-            req["flash"]("success", "Chỉnh sửa tài khoản thành công!");
+            const existAccount = await Account.findOne({
+                _id: {
+                    $ne: req.params.id
+                },
+                email: req.body.email,
+                deleted: false
+            });
 
-        } else {
-            req["flash"]("error", `Email ${req.body.email} đã tồn tại!`);
+            if (!existAccount) {
+                if (req.body.password) {
+                    dataAccount["password"] = md5(req.body.password);
+                }
+
+                await Account.updateOne({
+                    _id: req.params.id
+                }, dataAccount);
+                req["flash"]("success", "Chỉnh sửa tài khoản thành công!");
+
+            } else {
+                req["flash"]("error", `Email ${req.body.email} đã tồn tại!`);
+            }
+        } catch (error) {
+            req["flash"]("error", "Có lỗi trong quá trình chỉnh sửa tài khoản!");
         }
-    } catch (error) {
-        req["flash"]("error", "Có lỗi trong quá trình chỉnh sửa tài khoản!");
+        res.redirect(`back`);
     }
-    res.redirect(`back`);
+    else {
+        req["flash"]("error", "Bạn không có quyền chỉnh sửa thông tin tài khoản!");
+        res.redirect(`${systemConfig.prefixAdmin}/accounts`);
+    }
 }
 
 //[PATCH] /admin/account/deleted/:id
 export const deletedAccount = async (req: Request, res: Response) => {
-    try {
-        await Account.updateOne({
-            _id: req.params.id,
-        }, {
-            deleted: true,
-            deletedAt: Date.now()
-        });
+    if (res.locals.role.permissions.includes('accounts_delete')) {
+        try {
+            await Account.updateOne({
+                _id: req.params.id,
+            }, {
+                deleted: true,
+                deletedAt: Date.now()
+            });
 
-        req["flash"]("success", "Xóa tài khoản thành công!");
-    } catch (error) {
-        req["flash"]("error", "Có lỗi trong quá trình xóa tài khoản!");
+            req["flash"]("success", "Xóa tài khoản thành công!");
+        } catch (error) {
+            req["flash"]("error", "Có lỗi trong quá trình xóa tài khoản!");
+        }
+        res.redirect(`back`);
     }
-    res.redirect(`back`);
+    else {
+        req["flash"]("error", "Bạn không có quyền xóa tài khoản!");
+        res.redirect(`${systemConfig.prefixAdmin}/accounts`);
+    }
 }
 
 //[GET] /admin/auth/detail/:id
@@ -211,59 +229,65 @@ export const detail = async (req: Request, res: Response) => {
 
 // [PATCH] /admin/accounts/change-multi
 export const changeMulti = async (req: Request, res: Response) => {
-    const type = req.body.type;
-    const ids = req.body.ids.split(", ");
+    if (res.locals.role.permissions.includes('accounts_edit')) {
+        const type = req.body.type;
+        const ids = req.body.ids.split(", ");
 
-    switch (type) {
-        case "active":
-            try {
-                await Account.updateMany({
-                    _id: {
-                        $in: ids
-                    }
-                }, {
-                    status: "active"
-                });
-                req["flash"]("success", `Cập nhật trạng thái thành công!`);
-            } catch (error) {
-                req["flash"]("error", `Cập nhật trạng thái cho ${ids.length} ca sĩ thất bại!`);
-            }
-            break;
-        case "inactive":
-            try {
-                await Account.updateMany({
-                    _id: {
-                        $in: ids
-                    }
-                }, {
-                    status: "inactive"
-                })
-                req["flash"]("success", `Cập nhật trạng thái thành công!`);
-            } catch (error) {
-                req["flash"]("error", `Cập nhật trạng thái cho ${ids.length} ca sĩ thất bại!`);
-            }
-            break;
-        case "delete-all":
-            try {
-                await Account.updateMany({
-                    _id: {
-                        $in: ids
-                    }
-                }, {
-                    deleted: true,
-                    deletedAt: new Date()
-                    // deletedBy: {
-                    //     account_id: res.locals.user.id,
-                    //     deletedAt: new Date()
-                    // }
-                });
-                req["flash"]("success", `Xóa ca sĩ thành công!`);
-            } catch (error) {
-                req["flash"]("error", `Xóa ${ids.length} ca sĩ thất bại!`);
-            }
-            break;
-        default:
-            break;
+        switch (type) {
+            case "active":
+                try {
+                    await Account.updateMany({
+                        _id: {
+                            $in: ids
+                        }
+                    }, {
+                        status: "active"
+                    });
+                    req["flash"]("success", `Cập nhật trạng thái thành công!`);
+                } catch (error) {
+                    req["flash"]("error", `Cập nhật trạng thái cho ${ids.length} ca sĩ thất bại!`);
+                }
+                break;
+            case "inactive":
+                try {
+                    await Account.updateMany({
+                        _id: {
+                            $in: ids
+                        }
+                    }, {
+                        status: "inactive"
+                    })
+                    req["flash"]("success", `Cập nhật trạng thái thành công!`);
+                } catch (error) {
+                    req["flash"]("error", `Cập nhật trạng thái cho ${ids.length} ca sĩ thất bại!`);
+                }
+                break;
+            case "delete-all":
+                try {
+                    await Account.updateMany({
+                        _id: {
+                            $in: ids
+                        }
+                    }, {
+                        deleted: true,
+                        deletedAt: new Date()
+                        // deletedBy: {
+                        //     account_id: res.locals.user.id,
+                        //     deletedAt: new Date()
+                        // }
+                    });
+                    req["flash"]("success", `Xóa ca sĩ thành công!`);
+                } catch (error) {
+                    req["flash"]("error", `Xóa ${ids.length} ca sĩ thất bại!`);
+                }
+                break;
+            default:
+                break;
+        }
+        res.redirect("back");
     }
-    res.redirect("back");
+    else {
+        req["flash"]("error", "Bạn không có quyền chỉnh sửa thông tin tài khoản!");
+        res.redirect(`${systemConfig.prefixAdmin}/accounts`);
+    }
 }

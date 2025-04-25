@@ -56,21 +56,27 @@ export const create = async (req: Request, res: Response) => {
 
 //[POST] /admin/singers/create
 export const createPost = async (req: Request, res: Response) => {
-    try {
-        const dataSinger = {
-            fullName: req.body.fullName,
-            avatar: req.body.avatar,
-            status: req.body.status
-        };
+    if (res.locals.role.permissions.includes('singers_create')) {
+        try {
+            const dataSinger = {
+                fullName: req.body.fullName,
+                avatar: req.body.avatar,
+                status: req.body.status
+            };
 
-        const singer = new Singer(dataSinger);
-        await singer.save();
-        req["flash"]("success", "Thêm ca sĩ thành công!");
+            const singer = new Singer(dataSinger);
+            await singer.save();
+            req["flash"]("success", "Thêm ca sĩ thành công!");
 
+            res.redirect(`${systemConfig.prefixAdmin}/singers`);
+        } catch (ex) {
+            req["flash"]("error", "Có lỗi trong quá trình thêm ca sĩ!");
+            res.redirect("back");
+        }
+    }
+    else {
+        req["flash"]("error", "Bạn không có quyền chỉnh sửa thông tin ca sĩ!");
         res.redirect(`${systemConfig.prefixAdmin}/singers`);
-    } catch (ex) {
-        req["flash"]("error", "Có lỗi trong quá trình thêm ca sĩ!");
-        res.redirect("back");
     }
 }
 
@@ -94,43 +100,55 @@ export const edit = async (req: Request, res: Response) => {
 
 //[PATCH] /admin/singers/edit/:id
 export const editPatch = async (req: Request, res: Response) => {
-    try {
-        const dataSinger = {
-            fullName: req.body.fullName,
-            avatar: req.body.avatar,
-            status: req.body.status
-        };
+    if (res.locals.role.permissions.includes('singers_edit')) {
+        try {
+            const dataSinger = {
+                fullName: req.body.fullName,
+                avatar: req.body.avatar,
+                status: req.body.status
+            };
 
-        await Singer.updateOne({
-            _id: req.params.id
-        }, dataSinger);
-        req["flash"]("success", "Cập nhật thông tin ca sĩ thành công!");
+            await Singer.updateOne({
+                _id: req.params.id
+            }, dataSinger);
+            req["flash"]("success", "Cập nhật thông tin ca sĩ thành công!");
 
-    } catch (ex) {
-        req["flash"]("error", "Có lỗi trong quá trình cập nhật thông tin ca sĩ!");
+        } catch (ex) {
+            req["flash"]("error", "Có lỗi trong quá trình cập nhật thông tin ca sĩ!");
+        }
+        res.redirect("back");
     }
-    res.redirect("back");
+    else {
+        req["flash"]("error", "Bạn không có quyền chỉnh sửa thông tin ca sĩ!");
+        res.redirect(`${systemConfig.prefixAdmin}/singers`);
+    }
 }
 
 //[PATCH] /admin/singers/delete/:idSinger
 export const deleteSinger = async (req: Request, res: Response) => {
-    try {
-        req["flash"]("success", "Xóa thông tin ca sĩ thành công!");
-        await Singer.updateOne({
-            _id: req.params.idSinger
-        }, {
-            deleted: true,
-            deletedAt: Date.now()
-        });
+    if (res.locals.role.permissions.includes('singers_delete')) {
+        try {
+            req["flash"]("success", "Xóa thông tin ca sĩ thành công!");
+            await Singer.updateOne({
+                _id: req.params.idSinger
+            }, {
+                deleted: true,
+                deletedAt: Date.now()
+            });
 
-        // res.json({
-        //     code: 200,
-        //     message: "Deleted success!"
-        // });
-    } catch (ex) {
-        req["flash"]("error", "Có lỗi trong quá trình xóa thông tin ca sĩ!");
+            // res.json({
+            //     code: 200,
+            //     message: "Deleted success!"
+            // });
+        } catch (ex) {
+            req["flash"]("error", "Có lỗi trong quá trình xóa thông tin ca sĩ!");
+        }
+        res.redirect("back");
     }
-    res.redirect("back");
+    else {
+        req["flash"]("error", "Bạn không có quyền chỉnh sửa thông tin ca sĩ!");
+        res.redirect(`${systemConfig.prefixAdmin}/singers`);
+    }
 }
 
 //[GET] /admin/singers/detail/:id
@@ -153,6 +171,7 @@ export const detail = async (req: Request, res: Response) => {
 
 // [PATCH] /admin/singers/change-multi
 export const changeMulti = async (req: Request, res: Response) => {
+    if (res.locals.role.permissions.includes('singers_edit')) {
         const type = req.body.type;
         const ids = req.body.ids.split(", ");
 
@@ -208,4 +227,9 @@ export const changeMulti = async (req: Request, res: Response) => {
                 break;
         }
         res.redirect("back");
+    }
+    else {
+        req["flash"]("error", "Bạn không có quyền chỉnh sửa thông tin ca sĩ!");
+        res.redirect(`${systemConfig.prefixAdmin}/singers`);
+    }
 }

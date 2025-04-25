@@ -76,33 +76,39 @@ const create = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.create = create;
 const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        let avatar = "";
-        if (req.body.avatar) {
-            avatar = req.body.avatar[0];
+    if (res.locals.role.permissions.includes('songs_create')) {
+        try {
+            let avatar = "";
+            if (req.body.avatar) {
+                avatar = req.body.avatar[0];
+            }
+            let audio = "";
+            if (req.body.audio) {
+                audio = req.body.audio[0];
+            }
+            const dataSong = {
+                title: req.body.title,
+                topicId: req.body.topicId,
+                singerId: req.body.singerId,
+                description: req.body.description || "",
+                status: req.body.status,
+                lyrics: req.body.lyrics,
+                avatar: avatar,
+                audio: audio
+            };
+            const song = new song_model_1.default(dataSong);
+            song.save();
+            req["flash"]("success", "Thêm bài hát thành công!");
+            res.redirect(`${config_1.systemConfig.prefixAdmin}/songs`);
         }
-        let audio = "";
-        if (req.body.audio) {
-            audio = req.body.audio[0];
+        catch (ex) {
+            req["flash"]("error", "Có lỗi trong quá trình thêm bài hát!");
+            res.redirect("back");
         }
-        const dataSong = {
-            title: req.body.title,
-            topicId: req.body.topicId,
-            singerId: req.body.singerId,
-            description: req.body.description || "",
-            status: req.body.status,
-            lyrics: req.body.lyrics,
-            avatar: avatar,
-            audio: audio
-        };
-        const song = new song_model_1.default(dataSong);
-        song.save();
-        req["flash"]("success", "Thêm bài hát thành công!");
-        res.redirect(`${config_1.systemConfig.prefixAdmin}/songs`);
     }
-    catch (ex) {
-        req["flash"]("error", "Có lỗi trong quá trình thêm bài hát!");
-        res.redirect("back");
+    else {
+        req["flash"]("error", "Bạn không có quyền thêm bài hát!");
+        res.redirect(`${config_1.systemConfig.prefixAdmin}/singers`);
     }
 });
 exports.createPost = createPost;
@@ -135,46 +141,58 @@ const edit = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.edit = edit;
 const editPatch = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const dataSong = {
-            title: req.body.title,
-            topicId: req.body.topicId,
-            singerId: req.body.singerId,
-            description: req.body.description || "",
-            status: req.body.status,
-            lyrics: req.body.lyrics
-        };
-        if (req.body.avatar) {
-            dataSong["avatar"] = req.body.avatar[0];
+    if (res.locals.role.permissions.includes('songs_edit')) {
+        try {
+            const dataSong = {
+                title: req.body.title,
+                topicId: req.body.topicId,
+                singerId: req.body.singerId,
+                description: req.body.description || "",
+                status: req.body.status,
+                lyrics: req.body.lyrics
+            };
+            if (req.body.avatar) {
+                dataSong["avatar"] = req.body.avatar[0];
+            }
+            if (req.body.audio) {
+                dataSong["audio"] = req.body.audio[0];
+            }
+            yield song_model_1.default.updateOne({
+                _id: req.params.idSong
+            }, dataSong);
+            req["flash"]("success", "Thay đổi thông tin bài hát thành công!");
         }
-        if (req.body.audio) {
-            dataSong["audio"] = req.body.audio[0];
+        catch (ex) {
+            req["flash"]("error", "Có lỗi trong quá trình thay đổi thông tin bài hát!");
         }
-        yield song_model_1.default.updateOne({
-            _id: req.params.idSong
-        }, dataSong);
-        req["flash"]("success", "Thay đổi thông tin bài hát thành công!");
+        res.redirect(`back`);
     }
-    catch (ex) {
-        req["flash"]("error", "Có lỗi trong quá trình thay đổi thông tin bài hát!");
+    else {
+        req["flash"]("error", "Bạn không có quyền chỉnh sửa thông tin bài hát!");
+        res.redirect(`${config_1.systemConfig.prefixAdmin}/singers`);
     }
-    res.redirect(`back`);
 });
 exports.editPatch = editPatch;
 const deleteSong = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        yield song_model_1.default.updateOne({
-            _id: req.params.idSong
-        }, {
-            deleted: true,
-            deletedAt: Date.now()
-        });
-        req["flash"]("success", "Xóa bài hát thành công!");
+    if (res.locals.role.permissions.includes('songs_delete')) {
+        try {
+            yield song_model_1.default.updateOne({
+                _id: req.params.idSong
+            }, {
+                deleted: true,
+                deletedAt: Date.now()
+            });
+            req["flash"]("success", "Xóa bài hát thành công!");
+        }
+        catch (ex) {
+            req["flash"]("error", "Có lỗi trong quá trình xóa bài hát!");
+        }
+        res.redirect("back");
     }
-    catch (ex) {
-        req["flash"]("error", "Có lỗi trong quá trình xóa bài hát!");
+    else {
+        req["flash"]("error", "Bạn không có quyền xóa bài hát!");
+        res.redirect(`${config_1.systemConfig.prefixAdmin}/singers`);
     }
-    res.redirect("back");
 });
 exports.deleteSong = deleteSong;
 const detail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -208,58 +226,64 @@ const detail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.detail = detail;
 const changeMulti = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const type = req.body.type;
-    const ids = req.body.ids.split(", ");
-    switch (type) {
-        case "active":
-            try {
-                yield song_model_1.default.updateMany({
-                    _id: {
-                        $in: ids
-                    }
-                }, {
-                    status: "active"
-                });
-                req["flash"]("success", `Cập nhật trạng thái thành công!`);
-            }
-            catch (error) {
-                req["flash"]("error", `Cập nhật trạng thái cho ${ids.length} ca sĩ thất bại!`);
-            }
-            break;
-        case "inactive":
-            try {
-                yield song_model_1.default.updateMany({
-                    _id: {
-                        $in: ids
-                    }
-                }, {
-                    status: "inactive"
-                });
-                req["flash"]("success", `Cập nhật trạng thái thành công!`);
-            }
-            catch (error) {
-                req["flash"]("error", `Cập nhật trạng thái cho ${ids.length} ca sĩ thất bại!`);
-            }
-            break;
-        case "delete-all":
-            try {
-                yield song_model_1.default.updateMany({
-                    _id: {
-                        $in: ids
-                    }
-                }, {
-                    deleted: true,
-                    deletedAt: new Date()
-                });
-                req["flash"]("success", `Xóa ca sĩ thành công!`);
-            }
-            catch (error) {
-                req["flash"]("error", `Xóa ${ids.length} ca sĩ thất bại!`);
-            }
-            break;
-        default:
-            break;
+    if (res.locals.role.permissions.includes('songs_edit')) {
+        const type = req.body.type;
+        const ids = req.body.ids.split(", ");
+        switch (type) {
+            case "active":
+                try {
+                    yield song_model_1.default.updateMany({
+                        _id: {
+                            $in: ids
+                        }
+                    }, {
+                        status: "active"
+                    });
+                    req["flash"]("success", `Cập nhật trạng thái thành công!`);
+                }
+                catch (error) {
+                    req["flash"]("error", `Cập nhật trạng thái cho ${ids.length} bài hát thất bại!`);
+                }
+                break;
+            case "inactive":
+                try {
+                    yield song_model_1.default.updateMany({
+                        _id: {
+                            $in: ids
+                        }
+                    }, {
+                        status: "inactive"
+                    });
+                    req["flash"]("success", `Cập nhật trạng thái thành công!`);
+                }
+                catch (error) {
+                    req["flash"]("error", `Cập nhật trạng thái cho ${ids.length} bài hát thất bại!`);
+                }
+                break;
+            case "delete-all":
+                try {
+                    yield song_model_1.default.updateMany({
+                        _id: {
+                            $in: ids
+                        }
+                    }, {
+                        deleted: true,
+                        deletedAt: new Date()
+                    });
+                    req["flash"]("success", `Xóa bài hát thành công!`);
+                }
+                catch (error) {
+                    req["flash"]("error", `Xóa ${ids.length} bài hát thất bại!`);
+                }
+                break;
+            default:
+                break;
+        }
+        res.redirect("back");
     }
-    res.redirect("back");
+    else {
+        req["flash"]("error", "Bạn không có quyền chỉnh sửa thông tin bài hát!");
+        res.redirect(`${config_1.systemConfig.prefixAdmin}/singers`);
+    }
 });
 exports.changeMulti = changeMulti;

@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.generalPatch = exports.general = void 0;
 const settingGeneral_model_1 = __importDefault(require("../../models/settingGeneral.model"));
+const config_1 = require("../../config/config");
 const general = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const settingGeneral = yield settingGeneral_model_1.default.findOne({});
     res.render("admin/pages/settings/general", {
@@ -23,22 +24,28 @@ const general = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.general = general;
 const generalPatch = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const settingGeneral = yield settingGeneral_model_1.default.findOne({});
-        if (settingGeneral) {
-            yield settingGeneral_model_1.default.updateOne({
-                _id: settingGeneral.id
-            }, req.body);
+    if (res.locals.role.permissions.includes('generate_setting_edit')) {
+        try {
+            const settingGeneral = yield settingGeneral_model_1.default.findOne({});
+            if (settingGeneral) {
+                yield settingGeneral_model_1.default.updateOne({
+                    _id: settingGeneral.id
+                }, req.body);
+            }
+            else {
+                const settingGeneral = new settingGeneral_model_1.default(req.body);
+                yield settingGeneral.save();
+            }
+            req["flash"]("success", "Thay đổi thông tin website thành công!");
         }
-        else {
-            const settingGeneral = new settingGeneral_model_1.default(req.body);
-            yield settingGeneral.save();
+        catch (ex) {
+            req["flash"]("error", "Có lỗi trong quá trình thay đổi thông tin website!");
         }
-        req["flash"]("success", "Thay đổi thông tin website thành công!");
+        res.redirect("back");
     }
-    catch (ex) {
-        req["flash"]("error", "Có lỗi trong quá trình thay đổi thông tin website!");
+    else {
+        req["flash"]("error", "Bạn không có quyền chỉnh sửa cài đặt chung!");
+        res.redirect(`${config_1.systemConfig.prefixAdmin}/settings/general`);
     }
-    res.redirect("back");
 });
 exports.generalPatch = generalPatch;

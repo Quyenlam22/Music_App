@@ -156,7 +156,7 @@ if (buttonsChangeStatus) {
                         button.classList.toggle("badge-success", currentStatus === "active");
                         button.classList.toggle("badge-danger", currentStatus === "inactive");
                         button.setAttribute("data-status", currentStatus); // Khôi phục trạng thái
-                        alert("Đã xảy ra lỗi, vui lòng thử lại."); // Thông báo lỗi
+                        alert("Bạn không có quyền thay đổi trạng thái!"); // Thông báo lỗi
                     }
                     if (data.code == 200) {
                         showAlert.classList.remove("alert-hidden");

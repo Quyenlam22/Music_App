@@ -53,21 +53,27 @@ const create = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.create = create;
 const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const dataTopic = {
-            title: req.body.title,
-            avatar: req.body.avatar,
-            description: req.body.description,
-            status: req.body.status
-        };
-        const topic = new topic_model_1.default(dataTopic);
-        yield topic.save();
-        req["flash"]("success", "Thêm chủ đề thành công!");
-        res.redirect(`${config_1.systemConfig.prefixAdmin}/topics`);
+    if (res.locals.role.permissions.includes('topics_create')) {
+        try {
+            const dataTopic = {
+                title: req.body.title,
+                avatar: req.body.avatar,
+                description: req.body.description,
+                status: req.body.status
+            };
+            const topic = new topic_model_1.default(dataTopic);
+            yield topic.save();
+            req["flash"]("success", "Thêm chủ đề thành công!");
+            res.redirect(`${config_1.systemConfig.prefixAdmin}/topics`);
+        }
+        catch (ex) {
+            req["flash"]("error", "Có lỗi trong quá trình thêm chủ đề!");
+            res.redirect("back");
+        }
     }
-    catch (ex) {
-        req["flash"]("error", "Có lỗi trong quá trình thêm chủ đề!");
-        res.redirect("back");
+    else {
+        req["flash"]("error", "Bạn không có quyền thêm chủ đề!");
+        res.redirect(`${config_1.systemConfig.prefixAdmin}/topics`);
     }
 });
 exports.createPost = createPost;
@@ -89,38 +95,50 @@ const edit = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.edit = edit;
 const editPatch = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const dataTopic = {
-            title: req.body.title,
-            avatar: req.body.avatar,
-            description: req.body.description,
-            status: req.body.status
-        };
-        yield topic_model_1.default.updateOne({
-            _id: req.params.id
-        }, dataTopic);
-        req["flash"]("success", "Cập nhật chủ đề thành công!");
+    if (res.locals.role.permissions.includes('topics_edit')) {
+        try {
+            const dataTopic = {
+                title: req.body.title,
+                avatar: req.body.avatar,
+                description: req.body.description,
+                status: req.body.status
+            };
+            yield topic_model_1.default.updateOne({
+                _id: req.params.id
+            }, dataTopic);
+            req["flash"]("success", "Cập nhật chủ đề thành công!");
+        }
+        catch (ex) {
+            req["flash"]("error", "Có lỗi trong quá trình cập nhật chủ đề!");
+        }
+        res.redirect("back");
     }
-    catch (ex) {
-        req["flash"]("error", "Có lỗi trong quá trình cập nhật chủ đề!");
+    else {
+        req["flash"]("error", "Bạn không có quyền chỉnh sửa thông tin chủ đề!");
+        res.redirect(`${config_1.systemConfig.prefixAdmin}/topics`);
     }
-    res.redirect("back");
 });
 exports.editPatch = editPatch;
 const deleteTopic = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        yield topic_model_1.default.updateOne({
-            _id: req.params.idTopic
-        }, {
-            deleted: true,
-            deletedAt: Date.now()
-        });
-        req["flash"]("success", "Xóa chủ đề thành công!");
+    if (res.locals.role.permissions.includes('topics_delete')) {
+        try {
+            yield topic_model_1.default.updateOne({
+                _id: req.params.idTopic
+            }, {
+                deleted: true,
+                deletedAt: Date.now()
+            });
+            req["flash"]("success", "Xóa chủ đề thành công!");
+        }
+        catch (ex) {
+            req["flash"]("error", "Có lỗi trong quá trình xóa chủ đề!");
+        }
+        res.redirect("back");
     }
-    catch (ex) {
-        req["flash"]("error", "Có lỗi trong quá trình xóa chủ đề!");
+    else {
+        req["flash"]("error", "Bạn không có quyền xóa chủ đề!");
+        res.redirect(`${config_1.systemConfig.prefixAdmin}/topics`);
     }
-    res.redirect("back");
 });
 exports.deleteTopic = deleteTopic;
 const detail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -141,58 +159,64 @@ const detail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.detail = detail;
 const changeMulti = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const type = req.body.type;
-    const ids = req.body.ids.split(", ");
-    switch (type) {
-        case "active":
-            try {
-                yield topic_model_1.default.updateMany({
-                    _id: {
-                        $in: ids
-                    }
-                }, {
-                    status: "active"
-                });
-                req["flash"]("success", `Cập nhật trạng thái thành công!`);
-            }
-            catch (error) {
-                req["flash"]("error", `Cập nhật trạng thái cho ${ids.length} ca sĩ thất bại!`);
-            }
-            break;
-        case "inactive":
-            try {
-                yield topic_model_1.default.updateMany({
-                    _id: {
-                        $in: ids
-                    }
-                }, {
-                    status: "inactive"
-                });
-                req["flash"]("success", `Cập nhật trạng thái thành công!`);
-            }
-            catch (error) {
-                req["flash"]("error", `Cập nhật trạng thái cho ${ids.length} ca sĩ thất bại!`);
-            }
-            break;
-        case "delete-all":
-            try {
-                yield topic_model_1.default.updateMany({
-                    _id: {
-                        $in: ids
-                    }
-                }, {
-                    deleted: true,
-                    deletedAt: new Date()
-                });
-                req["flash"]("success", `Xóa ca sĩ thành công!`);
-            }
-            catch (error) {
-                req["flash"]("error", `Xóa ${ids.length} ca sĩ thất bại!`);
-            }
-            break;
-        default:
-            break;
+    if (res.locals.role.permissions.includes('topics_edit')) {
+        const type = req.body.type;
+        const ids = req.body.ids.split(", ");
+        switch (type) {
+            case "active":
+                try {
+                    yield topic_model_1.default.updateMany({
+                        _id: {
+                            $in: ids
+                        }
+                    }, {
+                        status: "active"
+                    });
+                    req["flash"]("success", `Cập nhật trạng thái thành công!`);
+                }
+                catch (error) {
+                    req["flash"]("error", `Cập nhật trạng thái cho ${ids.length} ca sĩ thất bại!`);
+                }
+                break;
+            case "inactive":
+                try {
+                    yield topic_model_1.default.updateMany({
+                        _id: {
+                            $in: ids
+                        }
+                    }, {
+                        status: "inactive"
+                    });
+                    req["flash"]("success", `Cập nhật trạng thái thành công!`);
+                }
+                catch (error) {
+                    req["flash"]("error", `Cập nhật trạng thái cho ${ids.length} ca sĩ thất bại!`);
+                }
+                break;
+            case "delete-all":
+                try {
+                    yield topic_model_1.default.updateMany({
+                        _id: {
+                            $in: ids
+                        }
+                    }, {
+                        deleted: true,
+                        deletedAt: new Date()
+                    });
+                    req["flash"]("success", `Xóa ca sĩ thành công!`);
+                }
+                catch (error) {
+                    req["flash"]("error", `Xóa ${ids.length} ca sĩ thất bại!`);
+                }
+                break;
+            default:
+                break;
+        }
+        res.redirect("back");
     }
-    res.redirect("back");
+    else {
+        req["flash"]("error", "Bạn không có quyền chỉnh sửa thông tin chủ đề!");
+        res.redirect(`${config_1.systemConfig.prefixAdmin}/topics`);
+    }
 });
 exports.changeMulti = changeMulti;

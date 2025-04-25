@@ -22,39 +22,84 @@ const index = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const type = req.params.type;
         if (type == "topics") {
-            yield topic_model_1.default.updateOne({
-                _id: req.params.id
-            }, {
-                status: req.params.status
-            });
+            if (res.locals.role.permissions.includes('topics_edit')) {
+                yield topic_model_1.default.updateOne({
+                    _id: req.params.id
+                }, {
+                    status: req.params.status
+                });
+            }
+            else {
+                res.json({
+                    code: 400,
+                    message: "Change status error!",
+                });
+                return;
+            }
         }
         if (type == "singers") {
-            yield singer_model_1.default.updateOne({
-                _id: req.params.id
-            }, {
-                status: req.params.status
-            });
+            if (res.locals.role.permissions.includes('singers_edit')) {
+                yield singer_model_1.default.updateOne({
+                    _id: req.params.id
+                }, {
+                    status: req.params.status
+                });
+            }
+            else {
+                res.json({
+                    code: 400,
+                    message: "Change status error!",
+                });
+                return;
+            }
         }
         if (type == "songs") {
-            yield song_model_1.default.updateOne({
-                _id: req.params.id
-            }, {
-                status: req.params.status
-            });
+            if (res.locals.role.permissions.includes('songs_edit')) {
+                yield song_model_1.default.updateOne({
+                    _id: req.params.id
+                }, {
+                    status: req.params.status
+                });
+            }
+            else {
+                res.json({
+                    code: 400,
+                    message: "Change status error!",
+                });
+                return;
+            }
         }
         if (type == "users") {
-            yield user_model_1.default.updateOne({
-                _id: req.params.id
-            }, {
-                status: req.params.status
-            });
+            if (res.locals.role.permissions.includes('users_edit')) {
+                yield user_model_1.default.updateOne({
+                    _id: req.params.id
+                }, {
+                    status: req.params.status
+                });
+            }
+            else {
+                res.json({
+                    code: 400,
+                    message: "Change status error!",
+                });
+                return;
+            }
         }
         if (type == "accounts") {
-            yield account_model_1.default.updateOne({
-                _id: req.params.id
-            }, {
-                status: req.params.status
-            });
+            if (res.locals.role.permissions.includes('accounts_edit')) {
+                yield account_model_1.default.updateOne({
+                    _id: req.params.id
+                }, {
+                    status: req.params.status
+                });
+            }
+            else {
+                res.json({
+                    code: 400,
+                    message: "Change status error!",
+                });
+                return;
+            }
         }
         res.json({
             code: 200,
