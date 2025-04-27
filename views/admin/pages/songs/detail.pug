@@ -1,45 +1,46 @@
 extends ../../layouts/default.pug
 include ../../mixins/moment.pug
 
-block main 
-    if(song.title)
-        h1(class="mb-4") Chi tiết bài hát - #{song.title}
+block main
+    if(role.permissions.includes("songs_view"))
+        if(song.title)
+            h1(class="mb-4") Chi tiết bài hát - #{song.title}
 
-    if(singer)
-        div(class="mb-4") Ca sĩ: <b>#{singer.fullName}</b>
+        if(singer)
+            div(class="mb-4") Ca sĩ: <b>#{singer.fullName}</b>
 
-    if(topic)
-        div(class="mb-4") Chủ đề: <b>#{topic.title}</b>
+        if(topic)
+            div(class="mb-4") Chủ đề: <b>#{topic.title}</b>
 
-    if(song.description)
-        div(class="mb-4") Mô tả: <b>!{song.description}</b>
+        if(song.description)
+            div(class="mb-4") Mô tả: <b>!{song.description}</b>
 
-    if(song.like.length > 0)
-        div(class="mb-4") Lượt thích: <b>#{song.like.length}</b>
+        if(song.like.length > 0)
+            div(class="mb-4") Lượt thích: <b>#{song.like.length}</b>
 
-    if(song.listen)
-        div(class="mb-4") Lượt nghe: <b>#{song.listen}</b>
+        if(song.listen)
+            div(class="mb-4") Lượt nghe: <b>#{song.listen}</b>
 
-    if(song.avatar)
-        div(class="mb-4")
-            img(
-                src=song.avatar
-                style="width: 100px"
-            )
+        if(song.avatar)
+            div(class="mb-4")
+                img(
+                    src=song.avatar
+                    style="width: 100px"
+                )
 
-    if(song.status)
-        div(class="mb-4")
-            span Trạng thái: 
-            if(song.status === "active")
-                span(class="badge badge-success") Hoạt động
-            else
-                span(class="badge badge-danger") Dừng hoạt động
+        if(song.status)
+            div(class="mb-4")
+                span Trạng thái: 
+                if(song.status === "active")
+                    span(class="badge badge-success") Hoạt động
+                else
+                    span(class="badge badge-danger") Dừng hoạt động
 
-    if(song.updatedAt)
-        div(class="mb-4") Ngày cập nhật: <b>
-            +formatDateTime(song.updatedAt)
-            </b>
-    a(
-        class="btn btn-warning"
-        href=`${prefixAdmin}/songs/edit/${song.id}`
-    ) Chỉnh sửa
+        if(song.updatedAt)
+            div(class="mb-4") Ngày cập nhật: <b>
+                +formatDateTime(song.updatedAt)
+                </b>
+        a(
+            class="btn btn-warning"
+            href=`${prefixAdmin}/songs/edit/${song.id}`
+        ) Chỉnh sửa

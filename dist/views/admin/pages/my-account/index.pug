@@ -1,7 +1,6 @@
 extends ../../layouts/default.pug
 
 block main 
-
     if(userAdmin.fullName)
         h1(class="mb-4") Thông tin tài khoản - #{userAdmin.fullName}
 
@@ -19,8 +18,8 @@ block main
     if(userAdmin.phone)
         div(class="mb-4") Phone: <b>#{userAdmin.phone}</b>
     
-    //- if(role.title)
-    //-     div(class="mb-4") Nhóm quyền: <b>#{role.title}</b>
+    if(role.title)
+        div(class="mb-4") Nhóm quyền: <b>#{role.title}</b>
     
     if(userAdmin.status)
         div(class="mb-4")

@@ -18,6 +18,7 @@ const singer_model_1 = __importDefault(require("../../models/singer.model"));
 const time_log_model_1 = __importDefault(require("../../models/time-log.model"));
 const account_model_1 = __importDefault(require("../../models/account.model"));
 const chart_model_1 = __importDefault(require("../../models/chart.model"));
+const role_model_1 = __importDefault(require("../../models/role.model"));
 const index = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let find = {
         status: "active",
@@ -37,7 +38,11 @@ const index = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const account = yield account_model_1.default.findOne({
             _id: timeLog.account_id
         });
+        const role = yield role_model_1.default.findOne({
+            _id: account.role_id
+        });
         timeLog["accountFullName"] = account.fullName;
+        timeLog["accountRoleTitle"] = role.title;
     }
     const charts = yield chart_model_1.default.find();
     let totalListen = [];

@@ -71,8 +71,9 @@ block main
                 name="copyright"
                 value=(settingGeneral ? settingGeneral.copyright : "")
             )
-        div(class="form-group") 
-            button(
-                type="submit"
-                class="btn btn-primary"
-            ) Cập nhật
+        if(role.permissions.includes("generate_setting_edit"))   
+            div(class="form-group") 
+                button(
+                    type="submit"
+                    class="btn btn-primary"
+                ) Cập nhật

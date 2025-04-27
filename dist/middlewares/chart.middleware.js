@@ -33,7 +33,7 @@ const objectCharts = () => __awaiter(void 0, void 0, void 0, function* () {
         data.totalLike += record.like.length;
     });
     const sessionUser = yield session_model_1.default.findOne({});
-    data.totalAccess = sessionUser['userIdentifier'].length;
+    data.totalAccess = sessionUser.userIdentifier.length;
     return data;
 });
 node_cron_1.default.schedule('0 0 1 * *', () => __awaiter(void 0, void 0, void 0, function* () {

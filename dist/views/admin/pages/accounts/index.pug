@@ -20,12 +20,14 @@ block main
         .card-body
             .row 
                 .col-8
-                    +form-change-multi(`${prefixAdmin}/accounts/change-multi?_method=PATCH`)
+                    if(role.permissions.includes("accounts_edit"))
+                        +form-change-multi(`${prefixAdmin}/accounts/change-multi?_method=PATCH`)
                 .col-4.text-right 
-                    a(
-                        href=`${prefixAdmin}/accounts/create`
-                        class="btn btn-outline-success"
-                    ) + Thêm mới 
+                    if(role.permissions.includes("accounts_create"))
+                        a(
+                            href=`${prefixAdmin}/accounts/create`
+                            class="btn btn-outline-success"
+                        ) + Thêm mới 
 
             if(accounts.length > 0)
                 table(
@@ -89,10 +91,12 @@ block main
                                         class="btn btn-secondary btn-sm"
                                         style="margin-right: 3px"
                                     ) Chi tiết
+                                    if(role.permissions.includes("accounts_edit"))
                                         a(
                                             href=`${prefixAdmin}/accounts/edit/${item.id}`
                                             class="btn btn-warning btn-sm"
                                         ) Sửa 
+                                    if(role.permissions.includes("accounts_delete"))
                                         button(
                                             class="btn btn-danger btn-sm ml-1"
                                             button-deleted

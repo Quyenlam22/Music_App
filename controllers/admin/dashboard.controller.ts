@@ -4,6 +4,7 @@ import Singer from "../../models/singer.model";
 import TimeLogin from "../../models/time-log.model";
 import Account from "../../models/account.model";
 import Chart from "../../models/chart.model";
+import Role from "../../models/role.model";
 
 //[GET] /admin/dashboard/
 export const index = async (req: Request, res: Response) => {
@@ -32,11 +33,11 @@ export const index = async (req: Request, res: Response) => {
         const account = await Account.findOne({
             _id: timeLog.account_id
         });
-        // const role = await Role.findOne({
-        //     _id: account.role_id
-        // });
+        const role = await Role.findOne({
+            _id: account.role_id
+        });
         timeLog["accountFullName"] = account.fullName;
-        // timeLog["accountRoleTitle"] = role.title;
+        timeLog["accountRoleTitle"] = role.title;
     }
 
     const charts = await Chart.find();

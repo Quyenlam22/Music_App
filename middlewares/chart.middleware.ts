@@ -23,7 +23,7 @@ const objectCharts = async () => {
 
     const sessionUser = await SessionUser.findOne({});
 
-    data.totalAccess = sessionUser['userIdentifier'].length;
+    data.totalAccess = sessionUser.userIdentifier.length;
 
     return data;
 }

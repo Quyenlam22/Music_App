@@ -30,7 +30,8 @@ block main
                             th Số điện thoại
                             //- th Vị trí
                             th Trạng thái
-                            th Hoạt động
+                            if(role.permissions.includes("singers_delete"))
+                                th Hoạt động
 
                     tbody
                         each item, index in users
@@ -71,11 +72,12 @@ block main
                                             class="badge badge-danger"
                                         ) Dừng hoạt động 
                                 td 
-                                    button(
-                                        class="btn btn-danger btn-sm ml-1"
-                                        button-deleted
-                                        data-id=item.id
-                                        ) Xóa
+                                    if(role.permissions.includes("singers_delete"))
+                                        button(
+                                            class="btn btn-danger btn-sm ml-1"
+                                            button-deleted
+                                            data-id=item.id
+                                            ) Xóa
             
             else 
                 h3.text-center.my-2 Không tìm thấy kết quả phù hợp      

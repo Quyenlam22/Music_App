@@ -20,12 +20,14 @@ block main
         .card-body
             .row 
                 .col-8
-                    +form-change-multi(`${prefixAdmin}/topics/change-multi?_method=PATCH`)
+                    if(role.permissions.includes("topics_edit"))
+                        +form-change-multi(`${prefixAdmin}/topics/change-multi?_method=PATCH`)
                 .col-4.text-right 
-                    a(
-                        href=`${prefixAdmin}/topics/create`
-                        class="btn btn-outline-success"
-                    ) + Thêm mới 
+                    if(role.permissions.includes("topics_create"))
+                        a(
+                            href=`${prefixAdmin}/topics/create`
+                            class="btn btn-outline-success"
+                        ) + Thêm mới 
 
             if(topics.length > 0)
                 table(
@@ -83,17 +85,19 @@ block main
                                         class="btn btn-secondary btn-sm"
                                         style="margin-right: 3px"
                                     ) Chi tiết
-                                    a(
-                                        href=`${prefixAdmin}/topics/edit/${item.id}`
-                                        class="btn btn-warning btn-sm"
-                                        button-edit
-                                        data-id=item.id
-                                        ) Sửa 
-                                    button(
-                                        class="btn btn-danger btn-sm ml-1"
-                                        button-deleted
-                                        data-id=item.id
-                                        ) Xóa
+                                    if(role.permissions.includes("topics_edit"))
+                                        a(
+                                            href=`${prefixAdmin}/topics/edit/${item.id}`
+                                            class="btn btn-warning btn-sm"
+                                            button-edit
+                                            data-id=item.id
+                                            ) Sửa 
+                                    if(role.permissions.includes("topics_delete"))
+                                        button(
+                                            class="btn btn-danger btn-sm ml-1"
+                                            button-deleted
+                                            data-id=item.id
+                                            ) Xóa
 
             else 
                 h3.text-center.my-2 Không tìm thấy kết quả phù hợp      
